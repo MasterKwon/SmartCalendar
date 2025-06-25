@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미니 달력</title>
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .mini-calendar-container {
+            background: #fff;
+            border: 1px solid #e0e3e8;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            width: 270px;
+            padding: 18px 12px 12px 12px;
+        }
+        .mini-calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .mini-calendar-title {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #222;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mini-calendar-title.small {
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .mini-calendar-title .icon {
+            font-size: 1.1em;
+            color: #888;
+        }
+        .mini-calendar-controls {
+            display: flex;
+            gap: 4px;
+        }
+        .mini-calendar-controls button {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .mini-calendar-controls button:hover {
+            background: #f0f2f5;
+        }
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .mini-calendar-weekday {
+            text-align: center;
+            font-size: 0.92em;
+            color: #b0b3bb;
+            font-weight: 500;
+            padding: 2px 0 6px 0;
+        }
+        .mini-calendar-day {
+            text-align: center;
+            font-size: 1em;
+            padding: 6px 0;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #222;
+            transition: background 0.15s, color 0.15s;
+            position: relative;
+        }
+        .mini-calendar-day.other-month,
+        .mini-calendar-day.disabled {
+            color: #d3d6de;
+            cursor: default;
+            background: none;
+        }
+        .mini-calendar-day.saturday {
+            color: #0070c0;
+        }
+        .mini-calendar-day.sunday {
+            color: #e74c3c;
+        }
+        .mini-calendar-day.selected {
+            background: #e6eaf3;
+            color: #222;
+            font-weight: 600;
+        }
+        .mini-calendar-day.today {
+            background: #4a90e2;
+            color: #fff !important;
+            font-weight: 600;
+        }
+        .mini-calendar-day:active {
+            background: #dbeafe;
+        }
+        @media (max-width: 400px) {
+            .mini-calendar-container {
+                width: 98vw;
+                min-width: 0;
+                padding: 6px 2px 2px 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="mini-calendar-container">
+    <div class="mini-calendar-header">
+        <div class="mini-calendar-title" id="miniCalendarTitle">
+            <span class="icon">📅</span>
+            <span id="miniCalendarYearMonth">2025.06</span>
+        </div>
+        <div class="mini-calendar-controls">
+            <button id="miniPrevBtn" title="이전">&#x2039;</button>
+            <button id="miniNextBtn" title="다음">&#x203A;</button>
+        </div>
+    </div>
+    <div class="mini-calendar-grid" id="miniCalendarGrid">
+        <!-- 요일/날짜 동적 생성 -->
+    </div>
+</div>
+<script>
+    const REFERENCE_DATE = new Date(2025, 8, 1); // 2025-09-01
+    const miniWeekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    let miniCurrentDate = new Date(2025, 5, 12); // 2025-06-12
+    let miniSelectedDate = new Date(2025, 5, 12);
+
+    function isAfterReferenceDate(date) {
+        return date >= REFERENCE_DATE;
+    }
+
+    function renderMiniCalendar() {
+        const grid = document.getElementById('miniCalendarGrid');
+        grid.innerHTML = '';
+        // 요일 헤더
+        miniWeekDays.forEach((d, i) => {
+            const wd = document.createElement('div');
+            wd.className = 'mini-calendar-weekday';
+            if (i === 5) wd.style.color = '#0070c0';
+            if (i === 6) wd.style.color = '#e74c3c';
+            wd.textContent = d;
+            grid.appendChild(wd);
+        });
+        // 현재 월/4주 정보
+        const year = miniCurrentDate.getFullYear();
+        const month = miniCurrentDate.getMonth();
+        const header = document.getElementById('miniCalendarYearMonth');
+        const titleDiv = document.getElementById('miniCalendarTitle');
+        const base = new Date(2025, 8, 1); // 2025-09-01
+        const nextBlock = new Date(base);
+        nextBlock.setDate(base.getDate() + 28); // 2025-09-29
+        if (isAfterReferenceDate(miniCurrentDate)) {
+            // SmartCalendar.html의 showWeekView와 동일하게
+            // 9월 1일~9월 28일은 9월 1일~28일이 2행(두 번째 주)부터 시작하도록 8월 25일(월)로 고정
+            let startDate;
+            if (miniCurrentDate >= base && miniCurrentDate < nextBlock) {
+                startDate = new Date(2025, 7, 25); // 2025-08-25 (월)
+            } else {
+                // currentDate가 속한 주의 월요일에서 1주 전(7일 전)으로 startDate 설정
+                let start = new Date(miniCurrentDate);
+                let day = start.getDay();
+                let diffToMonday = (day === 0 ? -6 : 1 - day);
+                start.setDate(start.getDate() + diffToMonday - 7);
+                startDate = new Date(start);
+            }
+            // 날짜 범위 업데이트 (중간 4주만 표시)
+            let displayStartDate = new Date(startDate);
+            displayStartDate.setDate(displayStartDate.getDate() + 7); // 첫 주 제외
+            let displayEndDate = new Date(displayStartDate);
+            displayEndDate.setDate(displayStartDate.getDate() + 27); // 4주
+            header.textContent = `${displayStartDate.getFullYear()}.${String(displayStartDate.getMonth()+1).padStart(2,'0')}.${String(displayStartDate.getDate()).padStart(2,'0')} ~ ${displayEndDate.getFullYear()}.${String(displayEndDate.getMonth()+1).padStart(2,'0')}.${String(displayEndDate.getDate()).padStart(2,'0')}`;
+            titleDiv.classList.add('small');
+            for (let i=0; i<42; i++) {
+                const d = new Date(startDate);
+                d.setDate(startDate.getDate() + i);
+                const cell = document.createElement('div');
+                cell.className = 'mini-calendar-day';
+                // 첫 주(0~6), 마지막 주(35~41)는 비활성화(회색), 날짜는 표시
+                if (i < 7 || i >= 35) {
+                    cell.classList.add('disabled');
+                    cell.textContent = d.getDate();
+                } else {
+                    // 가운데 4주만 활성화
+                    if (d.getDay() === 6) cell.classList.add('saturday');
+                    if (d.getDay() === 0) cell.classList.add('sunday');
+                    const today = new Date();
+                    if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+                        cell.classList.add('today');
+                    }
+                    if (miniSelectedDate && d.getFullYear() === miniSelectedDate.getFullYear() && d.getMonth() === miniSelectedDate.getMonth() && d.getDate() === miniSelectedDate.getDate()) {
+                        cell.classList.add('selected');
+                    }
+                    cell.textContent = d.getDate();
+                    cell.addEventListener('click', () => {
+                        miniSelectedDate = new Date(d);
+                        renderMiniCalendar();
+                    });
+                }
+                grid.appendChild(cell);
+            }
+        } else {
+            // 월 단위
+            header.textContent = `${year}.${String(month+1).padStart(2,'0')}`;
+            titleDiv.classList.remove('small');
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month+1, 0);
+            let start = new Date(firstDay);
+            let firstDayOfWeek = (firstDay.getDay() + 6) % 7; // 월요일=0
+            start.setDate(start.getDate() - firstDayOfWeek);
+            for (let i=0; i<42; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                const cell = document.createElement('div');
+                cell.className = 'mini-calendar-day';
+                if (d < firstDay || d > lastDay) {
+                    cell.classList.add('other-month');
+                    cell.textContent = d.getDate();
+                } else {
+                    if (d.getDay() === 6) cell.classList.add('saturday');
+                    if (d.getDay() === 0) cell.classList.add('sunday');
+                    const today = new Date();
+                    if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+                        cell.classList.add('today');
+                    }
+                    if (miniSelectedDate && d.getFullYear() === miniSelectedDate.getFullYear() && d.getMonth() === miniSelectedDate.getMonth() && d.getDate() === miniSelectedDate.getDate()) {
+                        cell.classList.add('selected');
+                    }
+                    cell.textContent = d.getDate();
+                    cell.addEventListener('click', () => {
+                        miniSelectedDate = new Date(d);
+                        renderMiniCalendar();
+                    });
+                }
+                grid.appendChild(cell);
+            }
+        }
+    }
+    document.getElementById('miniPrevBtn').onclick = () => {
+        const base = new Date(2025, 8, 1); // 2025-09-01
+        const nextBlock = new Date(base);
+        nextBlock.setDate(base.getDate() + 28); // 2025-09-29
+        if (miniCurrentDate < base) {
+            miniCurrentDate.setMonth(miniCurrentDate.getMonth() - 1);
+        } else if (miniCurrentDate >= base && miniCurrentDate < nextBlock) {
+            // 9월 1일이면 4주 빼서 8월로 이동 (월요일로 보정)
+            const day = miniCurrentDate.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            let monday = new Date(miniCurrentDate);
+            monday.setDate(miniCurrentDate.getDate() + diffToMonday);
+            monday.setDate(monday.getDate() - 28);
+            miniCurrentDate = monday;
+        } else if (miniCurrentDate < nextBlock) {
+            miniCurrentDate = new Date(base);
+        } else {
+            const day = miniCurrentDate.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            let monday = new Date(miniCurrentDate);
+            monday.setDate(miniCurrentDate.getDate() + diffToMonday);
+            monday.setDate(monday.getDate() - 28);
+            miniCurrentDate = monday;
+        }
+        renderMiniCalendar();
+    };
+    document.getElementById('miniNextBtn').onclick = () => {
+        const base = new Date(2025, 8, 1); // 2025-09-01
+        const nextBlock = new Date(base);
+        nextBlock.setDate(base.getDate() + 28); // 2025-09-29
+        if (miniCurrentDate < base) {
+            miniCurrentDate.setMonth(miniCurrentDate.getMonth() + 1);
+        } else if (miniCurrentDate >= base && miniCurrentDate < nextBlock) {
+            miniCurrentDate = new Date(nextBlock);
+        } else {
+            const day = miniCurrentDate.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            let monday = new Date(miniCurrentDate);
+            monday.setDate(miniCurrentDate.getDate() + diffToMonday);
+            monday.setDate(monday.getDate() + 28);
+            miniCurrentDate = monday;
+        }
+        renderMiniCalendar();
+    };
+    renderMiniCalendar();
+</script>
+</body>
+</html> 
