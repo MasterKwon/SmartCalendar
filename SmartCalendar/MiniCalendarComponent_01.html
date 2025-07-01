@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미니 달력 - 기본</title>
+    
+    <!-- 공통 CSS 파일 링크 -->
+    <link rel="stylesheet" href="css/common.css">
+    
+    <!-- 공통 JavaScript 파일 링크 -->
+    <script src="js/CalendarCore.js"></script>
+</head>
+<body>
+    <div class="mini-calendar-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #495057; cursor: pointer;">
+                <input type="checkbox" id="fixedWeeksCheckbox" checked style="margin: 0;">
+                <span>6주 고정</span>
+            </label>
+            <button class="today-btn" id="todayBtn" title="오늘로 이동">오늘</button>
+        </div>
+        <div class="mini-calendar-header">
+            <div class="mini-calendar-title" id="miniCalendarTitle">
+                <span id="miniCalendarYearMonth">2025.06</span>
+            </div>
+            <div class="mini-calendar-controls">
+                <button id="miniPrevBtn" title="이전">&#x2039;</button>
+                <button id="miniNextBtn" title="다음">&#x203A;</button>
+            </div>
+        </div>
+        <div class="mini-calendar-grid" id="miniCalendarGrid">
+            <!-- 요일/날짜 동적 생성 -->
+        </div>
+    </div>
+
+    <script>
+        // CalendarCore 로딩 확인 (동적 로드 환경에서도 안전하게)
+        if (typeof CalendarCore === 'undefined') {
+            console.error('CalendarCore.js not loaded for Mini01');
+            alert('CalendarCore.js 파일을 로드할 수 없습니다.');
+        } else {
+            console.log('✅ CalendarCore 로딩 성공 (Mini01):', CalendarCore);
+
+            // 공통 로직 변수들을 안전하게 할당 (prefix 사용으로 충돌 방지)
+            const coreREF_DATE = CalendarCore.REFERENCE_DATE;
+            const coreMINI_WEEKDAYS = CalendarCore.MINI_WEEK_DAYS;
+            const coreIsAfterRef = CalendarCore.isAfterReferenceDate;
+            const coreMovePrev = CalendarCore.moveToPreviousDate;
+            const coreMoveNext = CalendarCore.moveToNextDate;
+            const coreGet4WeekStart = CalendarCore.get4WeekStartDate;
+            const coreGet4WeekDispStart = CalendarCore.get4WeekDisplayStartDate;
+            const coreGet4WeekDispEnd = CalendarCore.get4WeekDisplayEndDate;
+            const coreFormatRange = CalendarCore.formatDateRange;
+            const coreFormatMonth = CalendarCore.formatMonthDisplay;
+
+            let miniCurrentDate = new Date();
+            let miniSelectedDate = new Date();
+
+        function renderMiniCalendar() {
+            const grid = document.getElementById('miniCalendarGrid');
+            const isFixedWeeks = document.getElementById('fixedWeeksCheckbox').checked;
+            grid.innerHTML = '';
+            
+            // 요일 헤더
+            coreMINI_WEEKDAYS.forEach((d, i) => {
+                const wd = document.createElement('div');
+                wd.className = 'mini-calendar-weekday';
+                if (i === 5) wd.style.color = '#3b82f6';
+                if (i === 6) wd.style.color = '#ef4444';
+                wd.textContent = d;
+                grid.appendChild(wd);
+            });
+            
+            // 현재 월/4주 정보
+            const year = miniCurrentDate.getFullYear();
+            const month = miniCurrentDate.getMonth();
+            const header = document.getElementById('miniCalendarYearMonth');
+            const titleDiv = document.getElementById('miniCalendarTitle');
+            const base = new Date(2025, 8, 1);
+            const nextBlock = new Date(base);
+            nextBlock.setDate(base.getDate() + 28);
+            
+            if (coreIsAfterRef(miniCurrentDate)) {
+                // 공통 로직 사용
+                const startDate = coreGet4WeekStart(miniCurrentDate);
+                const displayStartDate = coreGet4WeekDispStart(startDate);
+                const displayEndDate = coreGet4WeekDispEnd(displayStartDate);
+                
+                header.textContent = coreFormatRange(displayStartDate, displayEndDate);
+                titleDiv.classList.add('small');
+                
+                // 표시할 주 수 계산 (4주 달력용)
+                let weeksToShow = 6; // 기본 6주 (첫주, 4주, 마지막주)
+                if (!isFixedWeeks) {
+                    weeksToShow = 4; // 중간 4주만 표시
+                }
+                
+                const totalDays = weeksToShow === 6 ? 42 : 28;
+                const startIndex = weeksToShow === 6 ? 0 : 7; // 6주면 0부터, 4주면 7부터
+                
+                for (let i = startIndex; i < startIndex + totalDays; i++) {
+                    const d = new Date(startDate);
+                    d.setDate(startDate.getDate() + i);
+                    const cell = document.createElement('div');
+                    cell.className = 'mini-calendar-day';
+                    
+                    // 6주 모드에서 첫 주(0~6), 마지막 주(35~41)는 비활성화
+                    if (weeksToShow === 6 && (i < 7 || i >= 35)) {
+                        cell.classList.add('disabled');
+                        cell.textContent = d.getDate();
+                    } else {
+                        // 활성화된 날짜들
+                        if (d.getDay() === 6) cell.classList.add('saturday');
+                        if (d.getDay() === 0) cell.classList.add('sunday');
+                        const today = new Date();
+                        if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+                            cell.classList.add('today');
+                        }
+                        if (miniSelectedDate && d.getFullYear() === miniSelectedDate.getFullYear() && d.getMonth() === miniSelectedDate.getMonth() && d.getDate() === miniSelectedDate.getDate()) {
+                            cell.classList.add('selected');
+                        }
+                        cell.textContent = d.getDate();
+                        cell.addEventListener('click', () => {
+                            miniSelectedDate = new Date(d);
+                            renderMiniCalendar();
+                        });
+                        
+                        // 월별 배경색 구분 (홀수/짝수 월로 구분)
+                        if (d.getMonth() % 2 === 1) {
+                            cell.classList.add('month-alt');
+                        }
+                    }
+                    grid.appendChild(cell);
+                }
+            } else {
+                // 월 단위
+                header.textContent = coreFormatMonth(miniCurrentDate);
+                titleDiv.classList.remove('small');
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month+1, 0);
+                let start = new Date(firstDay);
+                let firstDayOfWeek = (firstDay.getDay() + 6) % 7; // 월요일=0
+                start.setDate(start.getDate() - firstDayOfWeek);
+                
+                // 표시할 주 수 계산
+                let weeksToShow = 6; // 기본 6주
+                if (!isFixedWeeks) {
+                    // 해당 월만 표시하기 위한 최소 주 수 계산
+                    const lastDayOfWeek = (lastDay.getDay() + 6) % 7; // 월요일=0
+                    const daysFromStart = firstDayOfWeek + lastDay.getDate();
+                    weeksToShow = Math.ceil(daysFromStart / 7);
+                }
+                
+                const totalDays = weeksToShow * 7;
+                for (let i=0; i<totalDays; i++) {
+                    const d = new Date(start);
+                    d.setDate(start.getDate() + i);
+                    const cell = document.createElement('div');
+                    cell.className = 'mini-calendar-day';
+                    if (d < firstDay || d > lastDay) {
+                        cell.classList.add('other-month');
+                        cell.textContent = d.getDate();
+                    } else {
+                        if (d.getDay() === 6) cell.classList.add('saturday');
+                        if (d.getDay() === 0) cell.classList.add('sunday');
+                        const today = new Date();
+                        if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
+                            cell.classList.add('today');
+                        }
+                        if (miniSelectedDate && d.getFullYear() === miniSelectedDate.getFullYear() && d.getMonth() === miniSelectedDate.getMonth() && d.getDate() === miniSelectedDate.getDate()) {
+                            cell.classList.add('selected');
+                        }
+                        cell.textContent = d.getDate();
+                        cell.addEventListener('click', () => {
+                            miniSelectedDate = new Date(d);
+                            renderMiniCalendar();
+                        });
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        
+        document.getElementById('miniPrevBtn').onclick = () => {
+            miniCurrentDate = coreMovePrev(miniCurrentDate);
+            renderMiniCalendar();
+        };
+        
+        document.getElementById('miniNextBtn').onclick = () => {
+            miniCurrentDate = coreMoveNext(miniCurrentDate);
+            renderMiniCalendar();
+        };
+        
+        document.getElementById('todayBtn').onclick = () => {
+            const today = new Date();
+            miniCurrentDate = new Date(today);
+            miniSelectedDate = new Date(today);
+            renderMiniCalendar();
+        };
+        
+            document.getElementById('fixedWeeksCheckbox').addEventListener('change', () => {
+                renderMiniCalendar();
+            });
+            
+            renderMiniCalendar();
+        }
+    </script>
+
+    <style>
+        /* 색상이 칠해진 날짜들 사이의 여백 제거 - 경계선 없이 */
+        .mini-calendar-grid {
+            gap: 0;
+        }
+        
+        .mini-calendar-day.month-alt {
+            background-color: #fef3c7;
+            border-radius: 0 !important;
+            margin: 0;
+            border: none;
+        }
+        
+        /* 선택된 날짜나 오늘 날짜는 기존 둥근 스타일 유지 */
+        .mini-calendar-day.month-alt.selected,
+        .mini-calendar-day.month-alt.today {
+            border-radius: 50% !important;
+        }
+        
+        /* 기본 날짜들은 둥근 모양 유지 */
+        .mini-calendar-day:not(.month-alt) {
+            border-radius: 50%;
+        }
+    </style>
+</body>
+</html> 

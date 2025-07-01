@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART 근무관리 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+            flex: 0 0 auto;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 14px;
+            color: #6b7280;
+            flex: 0 0 auto;
+        }
+
+        .main-nav {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-item {
+            padding: 0 25px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-item:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Sub Navigation */
+        .sub-nav {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .sub-nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .sub-nav-tabs {
+            display: flex;
+            gap: 30px;
+        }
+
+        .sub-nav-tab {
+            padding: 10px 0;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .sub-nav-tab.active {
+            border-bottom-color: #374151;
+        }
+
+        .sub-nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn.primary {
+            background: #374151;
+            color: white;
+            border-color: #374151;
+        }
+
+        .btn:hover {
+            background-color: #f9fafb;
+        }
+
+        .btn.primary:hover {
+            background-color: #1f2937;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            min-height: calc(100vh - 130px);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 350px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 25px;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .calendar {
+            margin-bottom: 30px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-day-header {
+            font-size: 12px;
+            color: #666;
+            padding: 8px 0;
+            font-weight: 500;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+
+        .calendar-day:hover {
+            background-color: #f0f0f0;
+        }
+
+        .calendar-day.today {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .calendar-day.weekend {
+            color: #dc3545;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        /* Work Time Settings */
+        .work-time-settings {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .work-time-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .radio-group {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .time-input-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 40px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .memo-area {
+            width: 100%;
+            height: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            resize: vertical;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .memo-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .submit-btn {
+            width: auto;
+            padding: 6px 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .calendar {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .daily-status {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .daily-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: nowrap !important;
+            min-height: 32px;
+            width: 100%;
+        }
+
+        .daily-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .daily-date {
+            color: #aaa8a8;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        .view-tabs {
+            display: inline-flex;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            flex: 0 0 auto;
+        }
+
+        .view-tab {
+            padding: 6px 12px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .view-tab.active {
+            background: #f8f9fa;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .status-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+
+        .status-card {
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .status-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .status-bar {
+            height: 3px;
+            background: #e9ecef;
+            border-radius: 1px;
+            margin-bottom: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-time {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .work-bar {
+            background: #6c757d;
+            width: 70%;
+            height: 100%;
+        }
+
+        .attendance-bar {
+            background: #17a2b8;
+            width: 0%;
+            height: 100%;
+        }
+
+        .overtime-bar {
+            background: #dc3545;
+            width: 85%;
+            height: 100%;
+        }
+
+        /* Task Section */
+        .task-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .task-items {
+            space-y: 15px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .task-time {
+            font-size: 14px;
+            color: #666;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .task-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .task-icon.work {
+            background: #28a745;
+        }
+
+        .task-icon.alarm {
+            background: #6c757d;
+        }
+
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-description {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .task-note {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .task-actions {
+            font-size: 12px;
+            color: #666;
+            flex-shrink: 0;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .task-actions:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+        <div class="header-top">
+            <div class="logo">SMART 근무관리 시스템</div>
+            <div class="main-nav">
+                <nav class="main-nav">
+                    <div class="nav-item active">근무관리</div>
+                    <div class="nav-item">커뮤니티</div>
+                    <div class="nav-item">조직관리</div>
+                    <div class="nav-item">설정</div>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <span>API 근태 바로가기 | </span>
+                <span>권병훈님</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub Navigation -->
+    <div class="sub-nav">
+        <div class="sub-nav-content">
+            <div class="sub-nav-tabs">
+                <div class="sub-nav-tab active">근무현황</div>
+                <div class="sub-nav-tab">계획등록</div>
+            </div>
+            <div class="sub-nav-buttons">
+                <button class="btn">비업무시간</button>
+                <button class="btn">월별근무 시간</button>
+                <button class="btn primary">근무마감</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Mini Calendar Component -->
+            <div id="mini-calendar-container" style="margin-bottom: 25px;">
+                <div style="padding: 20px; text-align: center; color: #999;">달력 로딩 중...</div>
+            </div>
+
+            <!-- CalendarCore.js를 미리 로드 -->
+            <script src="js/CalendarCore.js"></script>
+            
+            <script>
+                // Load and execute mini calendar component
+                function loadMiniCalendar() {
+                    // CalendarCore가 로드되었는지 확인
+                    if (typeof CalendarCore === 'undefined') {
+                        console.error('CalendarCore.js not loaded in main page');
+                        document.getElementById('mini-calendar-container').innerHTML = 
+                            `<div style="padding: 20px; text-align: center; color: #dc3545;">
+                                CalendarCore.js 파일을 로드할 수 없습니다.<br>
+                                js/CalendarCore.js 파일을 확인하세요.
+                            </div>`;
+                        return;
+                    }
+                    
+                    console.log('✅ CalendarCore 로딩 성공 (Main):', CalendarCore);
+                    
+                    // URL 파라메터에서 캘린더 파일명 가져오기
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const calendarFile = urlParams.get('calendar') || 'MiniCalendarComponent_01.html';
+                    
+                    // 보안을 위해 허용된 파일만 로드
+                    const allowedFiles = [
+                        'MiniCalendarComponent_01.html',
+                        'MiniCalendarComponent_02.html', 
+                        'MiniCalendarComponent_03.html',
+                        'MiniCalendarComponent_04.html'
+                    ];
+                    
+                    const fileToLoad = allowedFiles.includes(calendarFile) ? calendarFile : 'MiniCalendarComponent_01.html';
+                    
+                    fetch(fileToLoad)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
+                        .then(data => {
+                            const container = document.getElementById('mini-calendar-container');
+                            
+                            // HTML에서 CalendarCore.js 스크립트 태그 제거 (이미 로드되어 있으므로)
+                            const cleanedData = data.replace(/<script src="js\/CalendarCore\.js"><\/script>/g, '');
+                            container.innerHTML = cleanedData;
+                            
+                            // 페이지 제목에 로드된 캘린더 정보 표시
+                            const titleElement = document.querySelector('.system-title');
+                            if (titleElement) {
+                                const calendarName = getCalendarDisplayName(fileToLoad);
+                                titleElement.textContent = `스마트워크 시스템 - ${calendarName}`;
+                            }
+                            
+                            // Execute inline scripts
+                            const scripts = container.querySelectorAll('script');
+                            scripts.forEach(script => {
+                                const newScript = document.createElement('script');
+                                if (script.src) {
+                                    newScript.src = script.src;
+                                } else {
+                                    newScript.textContent = script.textContent;
+                                }
+                                document.head.appendChild(newScript);
+                                document.head.removeChild(newScript);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Failed to load mini calendar:', error);
+                            document.getElementById('mini-calendar-container').innerHTML = 
+                                `<div style="padding: 20px; text-align: center; color: #dc3545;">
+                                    달력을 로드할 수 없습니다.<br>
+                                    ${fileToLoad} 파일을 확인하세요.<br><br>
+                                    <div style="color: #6c757d; font-size: 0.9em; margin-top: 15px;">
+                                        <strong>해결방법:</strong><br>
+                                        • 로컬 서버 실행: <code>python -m http.server 8000</code><br>
+                                        • 또는 Chrome에서: <code>--allow-file-access-from-files</code> 옵션 사용<br>
+                                        • 웹 서버(Apache, IIS 등)에 업로드
+                                    </div>
+                                </div>`;
+                        });
+                }
+                
+
+                
+                function getCalendarDisplayName(filename) {
+                    const names = {
+                        'MiniCalendarComponent_01.html': 'Type A (색상 구분)',
+                        'MiniCalendarComponent_02.html': 'Type B (주 번호)',
+                        'MiniCalendarComponent_03.html': 'Type C (라인 구분)',
+                        'MiniCalendar.html': 'Type D (기본형)'
+                    };
+                    return names[filename] || 'Unknown';
+                }
+
+                // Load when DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', loadMiniCalendar);
+                } else {
+                    loadMiniCalendar();
+                }
+            </script>
+
+            <!-- Work Time Settings -->
+            <div class="work-time-settings">
+                <div class="work-time-title">
+                    근무시간 관리
+                </div>
+                
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="auto" name="worktime" checked>
+                        <label for="auto">근무시간 인정</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="manual" name="worktime">
+                        <label for="manual">근무시간 제외</label>
+                    </div>
+                </div>
+
+                <div class="time-input-label">
+                    시간입력(오늘 시점 경우 13:00)
+                </div>
+
+                <div class="time-inputs">
+                    <input type="text" class="time-input" value="" placeholder="00"> : 
+                    <input type="text" class="time-input" value="" placeholder="00"> ~ 
+                    <input type="text" class="time-input" value="" placeholder="00"> : 
+                    <input type="text" class="time-input" value="" placeholder="00">
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 14px; color: #333;">카테고리</label>
+                </div>
+                <select class="category-select">
+                    <option>선택</option>
+                </select>
+
+                <div class="memo-label">
+                    사유 (0/400 byte)
+                </div>
+
+                <textarea class="memo-area" placeholder="사유를 입력하세요"></textarea>
+
+                <button class="submit-btn">등록</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Daily Status -->
+            <div class="daily-status">
+                <div class="daily-header">
+                    <div class="daily-title">
+                        📊 DAILY 근무현황 
+                        <span class="daily-date">2025.04.01 (화)</span>
+                    </div>
+                    <div class="view-tabs">
+                        <button class="view-tab active">DAY</button>
+                        <button class="view-tab">WEEK</button>
+                        <button class="view-tab">MONTH</button>
+                    </div>
+                </div>
+
+                <div class="status-cards">
+                    <div class="status-card">
+                        <div class="status-number">8<span style="font-size: 12px;">시간</span> 0<span style="font-size: 12px;">분</span></div>
+                        <div class="status-label">근무체크</div>
+                        <div class="status-bar">
+                            <div class="work-bar"></div>
+                        </div>
+                        <div class="status-time">09:00</div>
+                    </div>
+                    
+                    <div class="status-card">
+                        <div class="status-number">0<span style="font-size: 12px;">시간</span> 0<span style="font-size: 12px;">분</span></div>
+                        <div class="status-label">근무시간</div>
+                        <div class="status-bar">
+                            <div class="attendance-bar"></div>
+                        </div>
+                        <div class="status-time">20:08</div>
+                    </div>
+                    
+                    <div class="status-card">
+                        <div class="status-number">1<span style="font-size: 12px;">시간</span> 30<span style="font-size: 12px;">분</span></div>
+                        <div class="status-label">휴식시간</div>
+                        <div class="status-bar">
+                            <div class="overtime-bar"></div>
+                        </div>
+                        <div class="status-time">(누적 외출시간 : 0시간 0분)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Section -->
+            <div class="task-section">
+                <div class="task-header">
+                    <div class="task-title">나의 하루 할일내역</div>
+                    <button class="btn">TAG기록 보기</button>
+                </div>
+
+                <div class="task-items">
+                    <div class="task-item">
+                        <div class="task-time">12:00~13:30</div>
+                        <div class="task-icon work"></div>
+                        <div class="task-content">
+                            <div class="task-description">🔧 점심</div>
+                            <div class="task-note">※ 1시간 이상 사용 시 수정을 눌러 추가 제외 하시기 바랍니다.<br>(점심 휴게 허용 시간은 11:30 ~ 13:30까지 입니다.)</div>
+                        </div>
+                        <div class="task-actions">수정</div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-time">20:08</div>
+                        <div class="task-icon alarm"></div>
+                        <div class="task-content">
+                            <div class="task-description">⏰ 원격근무 시간</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-time">20:08</div>
+                        <div class="task-icon alarm"></div>
+                        <div class="task-content">
+                            <div class="task-description">⏰ 원격근무 종료</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calendar navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects and click handlers for calendar days
+            const calendarDays = document.querySelectorAll('.calendar-day');
+            calendarDays.forEach(day => {
+                day.addEventListener('click', function() {
+                    // Remove active class from all days
+                    calendarDays.forEach(d => d.classList.remove('today'));
+                    // Add active class to clicked day
+                    this.classList.add('today');
+                });
+            });
+
+            // Tab switching
+            const viewTabs = document.querySelectorAll('.view-tab');
+            viewTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    viewTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Navigation tabs
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(n => n.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Sub navigation tabs
+            const subNavTabs = document.querySelectorAll('.sub-nav-tab');
+            subNavTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    subNavTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Work time radio buttons
+            const radioButtons = document.querySelectorAll('input[name="worktime"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    console.log('Work time setting changed:', this.value);
+                });
+            });
+        });
+    </script>
+    </div>
+</body>
+</html>

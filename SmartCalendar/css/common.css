@@ -1,0 +1,828 @@
+/* ===== 공통 리셋 및 기본 스타일 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f9fafb;
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
+}
+
+/* ===== 미니 캘린더 공통 스타일 ===== */
+.mini-calendar-container {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 320px;
+    padding: 20px 15px 15px 15px;
+    position: relative; /* 년도/월 오버레이 위치 기준 */
+}
+
+.mini-calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.mini-calendar-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-calendar-title.small {
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.mini-calendar-title .icon {
+    font-size: 1.1em;
+    color: #6b7280;
+}
+
+.mini-calendar-controls {
+    display: flex;
+    gap: 4px;
+    align-items: right;
+}
+
+.today-btn {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 0.85em;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.today-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.mini-calendar-controls button {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.3em;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.mini-calendar-controls button:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.mini-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+/* 주차 표시용 그리드 (MiniCalendarComponent_02.html용) */
+.mini-calendar-grid.with-week-numbers {
+    grid-template-columns: 30px repeat(7, 1fr);
+}
+
+/* 사각형 스타일용 그리드 (MiniCalendarComponent_04.html용) */
+.mini-calendar-grid.square-style {
+    gap: 0;
+}
+
+.mini-calendar-weekday {
+    text-align: center;
+    font-size: 1em;
+    color: #9ca3af;
+    font-weight: 500;
+    padding: 4px 0 8px 0;
+}
+
+/* 주차 표시용 스타일 */
+.mini-calendar-week {
+    text-align: center;
+    font-size: 0.75em;
+    color: #6b7280;
+    font-weight: 500;
+    padding: 8px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    min-height: 32px;
+}
+
+.mini-calendar-day {
+    text-align: center;
+    font-size: 1.1em;
+    padding: 8px 0;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #374151;
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== 미니 캘린더 상태 스타일 ===== */
+.mini-calendar-day.other-month,
+.mini-calendar-day.disabled {
+    color: #d1d5db;
+    cursor: default;
+    background: none;
+}
+
+.mini-calendar-day.saturday {
+    color: #3b82f6;
+}
+
+.mini-calendar-day.sunday {
+    color: #ef4444;
+}
+
+.mini-calendar-day.selected {
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+}
+
+.mini-calendar-day.today {
+    background: #6366f1;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.mini-calendar-day:active {
+    background: #dbeafe;
+}
+
+.mini-calendar-day.month-alt {
+    background-color: #fef3c7;
+    border-radius: 4px !important;
+}
+
+.mini-calendar-day.month-alt.selected {
+    background-color: #3b82f6 !important;
+    color: #fff !important;
+    font-weight: 600;
+    border-radius: 50% !important;
+}
+
+/* ===== 사각형 스타일 (MiniCalendarComponent_04.html용) ===== */
+.mini-calendar-day.square-style {
+    border-radius: 4px;
+    border: 1px solid transparent;
+    margin: -1px 0 0 -1px;
+}
+
+/* 월별 그룹 라인 스타일링 */
+.mini-calendar-day.month-group {
+    border: 1px solid transparent;
+    border-radius: 0;
+}
+
+/* 월 그룹의 경계선 강화 */
+.mini-calendar-day.month-top {
+    border-top: 1px solid #d1d5db;
+}
+
+.mini-calendar-day.month-bottom {
+    border-bottom: 1px solid #d1d5db;
+}
+
+.mini-calendar-day.month-left {
+    border-left: 1px solid #d1d5db;
+}
+
+.mini-calendar-day.month-right {
+    border-right: 1px solid #d1d5db;
+}
+
+/* 사각형 스타일에서 선택된 날짜 */
+.mini-calendar-day.square-style.selected {
+    background: #3b82f6 !important;
+    color: #fff !important;
+    font-weight: 600;
+    border-radius: 4px !important;
+}
+
+/* 사각형 스타일에서 오늘 날짜 */
+.mini-calendar-day.square-style.today {
+    background: #6366f1 !important;
+    color: #fff !important;
+    font-weight: 600;
+    border-radius: 4px !important;
+}
+
+/* ===== 팝업 달력 전용 스타일 (DatePickerComponent용) ===== */
+.mini-calendar-container.popup-compact {
+    max-width: 260px;
+    padding: 12px 10px 10px 10px;
+    border-radius: 6px;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-header {
+    margin-bottom: 12px;
+    margin-right: 25px;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-title {
+    font-size: 0.9em;
+    font-weight: 600;
+    gap: 5px;
+}
+
+/* 팝업 달력의 클릭 가능한 타이틀 효과 */
+.mini-calendar-container.popup-compact .mini-calendar-title.clickable {
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-title.clickable:hover {
+    background: rgba(59, 130, 246, 0.08);
+    transform: scale(1.05);
+    box-shadow: 0 1px 6px rgba(59, 130, 246, 0.12);
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-title.small {
+    font-size: 0.64em;
+    font-weight: 500;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-controls {
+    gap: 3px;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-controls button {
+    font-size: 1.04em;
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-grid {
+    gap: 2px;
+}
+
+/* 팝업 달력에서 월별 경계선 사용 시 그리드 간격 조정 */
+.mini-calendar-container.popup-compact .mini-calendar-grid.has-month-borders {
+    gap: 0;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-weekday {
+    font-size: 0.64em;
+    padding: 2px 0 4px 0;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-day {
+    font-size: 0.7em;
+    padding: 4px 0;
+    min-height: 20px;
+    border: 1px solid transparent;
+    margin: -1px 0 0 -1px;
+}
+
+/* 팝업 달력용 월별 경계선 스타일 */
+.mini-calendar-container.popup-compact .mini-calendar-day.month-group {
+    border: 1px solid transparent;
+    border-radius: 0;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-day.month-top {
+    border-top: 1px solid #d1d5db !important;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-day.month-bottom {
+    border-bottom: 1px solid #d1d5db !important;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-day.month-left {
+    border-left: 1px solid #d1d5db !important;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-day.month-right {
+    border-right: 1px solid #d1d5db !important;
+}
+
+/* 듀얼 달력용 컨테이너 */
+.mini-calendar-container.dual-mode {
+    max-width: 430px;
+    display: flex;
+    gap: 15px;
+}
+
+.calendar-side {
+    flex: 1;
+    min-width: 200px;
+}
+
+.calendar-side .mini-calendar-header {
+    margin-right: 0;
+}
+
+.calendar-side .mini-calendar-title {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.calendar-side .mini-calendar-controls button.nav-prev,
+.calendar-side .mini-calendar-controls button.nav-next {
+    display: none;
+}
+
+.calendar-side:first-child .mini-calendar-controls button.nav-prev {
+    display: block;
+}
+
+.calendar-side:last-child .mini-calendar-controls button.nav-next {
+    display: block;
+}
+
+/* 범위 선택 스타일 */
+.mini-calendar-day.range-start {
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+}
+
+.mini-calendar-day.range-end {
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+}
+
+.mini-calendar-day.in-range {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.mini-calendar-day.range-start:hover,
+.mini-calendar-day.range-end:hover {
+    background: #2563eb;
+}
+
+/* 팝업 달력 전용 오버레이 및 위치 */
+.datepicker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 10000;
+    display: none;
+}
+
+.datepicker-overlay.show {
+    display: block;
+}
+
+.datepicker-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 3px;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.datepicker-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.datepicker-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+}
+
+.datepicker-selected {
+    font-size: 0.68em;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* ===== 년도/월 빠른 선택 기능 ===== */
+/* 클릭 가능한 년도/월 헤더 */
+.mini-calendar-title.clickable {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    position: relative;
+    transform: scale(1);
+}
+
+.mini-calendar-title.clickable:hover {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.mini-calendar-title.clickable:active {
+    transform: scale(0.98);
+    transition: all 0.1s;
+}
+
+/* 년도/월 선택 오버레이 */
+.year-month-picker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(0px);
+    border-radius: 6px;
+    z-index: 10001;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    
+    /* 적당한 등장 애니메이션 준비 */
+    opacity: 0;
+    transform: scale(1.05);
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+.year-month-picker.show {
+    display: flex;
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    transform: scale(1);
+}
+
+/* 년도/월 선택 컨테이너 */
+.year-month-content {
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    padding: 16px;
+    max-width: 200px;
+    width: 100%;
+    
+    /* 적당한 팝업 등장 애니메이션 */
+    transform: scale(0.6) translateY(20px) rotateX(15deg);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+}
+
+.year-month-picker.show .year-month-content {
+    transform: scale(1) translateY(0) rotateX(0deg);
+    opacity: 1;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(59, 130, 246, 0.08);
+}
+
+/* 컨텐츠 애니메이션 지연 효과 */
+.year-month-picker.show .year-month-content {
+    animation: bounceIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.4) 0.05s both;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.6) translateY(20px) rotateX(15deg);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.02) translateY(-2px) rotateX(-2deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1) translateY(0) rotateX(0deg);
+        opacity: 1;
+    }
+}
+
+.year-month-picker.show {
+    display: block;
+}
+
+/* 년도 선택 영역 */
+.year-picker {
+    margin-bottom: 12px;
+}
+
+.year-picker-title {
+    font-size: 0.75em;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.year-picker-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.year-picker-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.year-picker-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.year-picker-current {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #374151;
+    min-width: 50px;
+    text-align: center;
+}
+
+.year-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+}
+
+.year-picker-item {
+    background: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 6px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    position: relative;
+    transform: scale(1);
+    overflow: hidden;
+}
+
+/* 리플 효과를 위한 의사 요소 */
+.year-picker-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    z-index: 0;
+}
+
+.year-picker-item:active::before {
+    width: 120%;
+    height: 120%;
+    transition: width 0.3s, height 0.3s;
+}
+
+.year-picker-item:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-color: #3b82f6;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+.year-picker-item:active {
+    transform: scale(0.95);
+    transition: all 0.1s;
+}
+
+.year-picker-item.current {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+    animation: currentPulse 2s ease-in-out infinite;
+}
+
+.year-picker-item.current:hover {
+    transform: scale(1.12);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+@keyframes currentPulse {
+    0%, 100% {
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+    }
+    50% {
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+}
+
+/* 월 선택 영역 */
+.month-picker {
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.month-picker-title {
+    font-size: 0.75em;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.month-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+}
+
+.month-picker-item {
+    background: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 6px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    position: relative;
+    transform: scale(1);
+    overflow: hidden;
+}
+
+/* 월 버튼 리플 효과 */
+.month-picker-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    z-index: 0;
+}
+
+.month-picker-item:active::before {
+    width: 120%;
+    height: 120%;
+    transition: width 0.3s, height 0.3s;
+}
+
+.month-picker-item:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-color: #3b82f6;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+.month-picker-item:active {
+    transform: scale(0.95);
+    transition: all 0.1s;
+}
+
+.month-picker-item.current {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+    animation: currentPulse 2s ease-in-out infinite;
+}
+
+.month-picker-item.current:hover {
+    transform: scale(1.12);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* ===== 선택 피드백 효과 ===== */
+/* 확산 효과 */
+.selection-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: rgba(59, 130, 246, 0.4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.selection-ripple.animate {
+    animation: rippleExpand 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 체크마크 효과 */
+.selection-checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 14px;
+    color: #fff;
+    background: #10b981;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 11;
+    pointer-events: none;
+    font-weight: bold;
+    opacity: 0;
+}
+
+.selection-checkmark.animate {
+    animation: checkmarkPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* 애니메이션 키프레임 */
+@keyframes rippleExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* ===== 반응형 스타일 ===== */
+@media (max-width: 400px) {
+    .mini-calendar-container {
+        width: 98vw;
+        min-width: 0;
+        padding: 6px 2px 2px 2px;
+    }
+    
+    .mini-calendar-container.popup-compact {
+        max-width: 240px;
+        padding: 10px 8px 8px 8px;
+    }
+} 

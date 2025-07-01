@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4주단위 달력 시연</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .header {
+            background: #374151;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 1em;
+            margin: 0;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .calendar-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+        
+        .calendar-card {
+            background: white;
+            border-radius: 4px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .calendar-card:hover {
+            border-color: #374151;
+        }
+        
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .card-description {
+            color: #6b7280;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+        
+        .card-features {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        
+        .card-features li {
+            padding: 3px 0;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .card-features li:before {
+            content: "• ";
+            color: #374151;
+        }
+        
+        .card-link {
+            display: inline-block;
+            background: #374151;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .card-link:hover {
+            background: #1f2937;
+        }
+        
+        .footer {
+            background: #f9fafb;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.9em;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗓️ 4주단위 달력 시연</h1>
+            <p>기존달려과 4주단위 달력의 혼용하기 위한 달력 예시</p>
+        </div>
+        
+        <div class="content">
+            <!-- 큰 달력 섹션 -->
+            <div class="calendar-section">
+                <h2 class="section-title">📋 큰 달력</h2>
+                <div class="calendar-grid">
+                    <div class="calendar-card">
+                        <h3 class="card-title">스마트 캘린더</h3>
+                        <p class="card-description">월별 및 4주 단위 일정 관리를 위한 다기능 달력입니다.</p>
+                        <ul class="card-features">
+                            <li>월별 / 4주 단위 자동 전환</li>
+                            <li>다중 날짜 선택 및 범위 선택</li>
+                            <li>오늘 날짜 자동 표시 및 선택</li>
+                            <li>6주/4주 표시 모드 전환</li>
+                        </ul>
+                        <a href="SmartCalendar.html" class="card-link">시연하기 →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 작은 달력 섹션 -->
+            <div class="calendar-section">
+                <h2 class="section-title">📅 작은 달력</h2>
+                <div class="calendar-grid">
+                    <div class="calendar-card">
+                        <h3 class="card-title">미니 캘린더 (Type A)</h3>
+                        <p class="card-description">background 색으로 월 구분 표시 유형</p>
+                        <ul class="card-features">
+                            <li>배경색으로 월별 구분</li>
+                            <li>직관적인 시각적 구분</li>
+                            <li>일반/4주 달력 자동 전환</li>
+                            <li>업무용 달력에 최적화</li>
+                        </ul>
+                        <a href="SmartWorkSystem_main.html?calendar=MiniCalendarComponent_01.html" class="card-link">시연하기 →</a>
+                    </div>
+                    
+                    <div class="calendar-card">
+                        <h3 class="card-title">미니 캘린더 (Type B)</h3>
+                        <p class="card-description">주 번호 노출되는 캘린더 유형</p>
+                        <ul class="card-features">
+                            <li>연간 주차 정보 표시</li>
+                            <li>"24주", "25주" 한글 표기</li>
+                            <li>프로젝트 일정 관리 최적화</li>
+                            <li>주간 단위 업무 스케줄링</li>
+                        </ul>
+                        <a href="SmartWorkSystem_main.html?calendar=MiniCalendarComponent_02.html" class="card-link">시연하기 →</a>
+                    </div>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-card">
+                        <h3 class="card-title">미니 캘린더 (Type C)</h3>
+                        <p class="card-description">가장 기본적인 형태의 심플 달력</p>
+                        <ul class="card-features">
+                            <li>깔끔한 원형 날짜 셀</li>
+                            <li>단순하고 직관적</li>
+                            <li>빠른 로딩 속도</li>
+                            <li>범용적 사용 가능</li>
+                        </ul>
+                        <a href="SmartWorkSystem_main.html?calendar=MiniCalendarComponent_03.html" class="card-link">시연하기 →</a>
+                    </div>
+                    
+                    <div class="calendar-card">
+                        <h3 class="card-title">미니 캘린더 (Type D)</h3>
+                        <p class="card-description">라인으로 월별 구분 및 외곽 경계선 적용</p>
+                        <ul class="card-features">
+                            <li>정확한 월별 경계선 구분</li>
+                            <li>4주 영역 외곽 라인</li>
+                            <li>주도권 기반 경계선 로직</li>
+                            <li>전문적인 업무용 외관</li>
+                        </ul>
+                        <a href="SmartWorkSystem_main.html?calendar=MiniCalendarComponent_04.html" class="card-link">시연하기 →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 날짜 범위 선택 컴포넌트 섹션 -->
+            <div class="calendar-section">
+                <h2 class="section-title">📊 날짜 선택</h2>
+                 <div class="calendar-card">
+                     <h3 class="card-title">날짜선택 팝업</h3>
+                     <p class="card-description">재사용 가능한 날짜 선택 컴포넌트</p>
+                     <ul class="card-features">
+                         <li>단일 날짜 / 기간 선택 지원</li>
+                         <li>JavaScript 클래스 기반</li>
+                         <li>페이지 전환 없이 바로 적용</li>
+                         <li>콜백 함수 지원</li>
+                         <li>간편한 API 제공</li>
+                     </ul>
+                     <a href="DatePickerDemo.html" class="card-link">시연하기 →</a>
+                 </div>
+             </div>
+         </div>
+        
+        <div class="footer">
+            <p>© 2025 4주단위 달력 시연 | 그로브소프트</p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날짜 선택 컴포넌트 데모</title>
+    
+    <!-- 통합된 공통 CSS 로드 -->
+    <link rel="stylesheet" href="css/common.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9fafb;
+            line-height: 1.6;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .demo-title {
+            font-size: 2em;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .demo-subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #f9fafb;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: none;
+            min-width: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        .date-input-container {
+            position: relative;
+            display: block;
+        }
+        
+        .date-input {
+            width: 140px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        
+        .date-input:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.1);
+            transform: translateY(-1px);
+        }
+        
+        .date-input:active {
+            transform: translateY(0);
+        }
+        
+        .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+        }
+        
+        .date-input.has-value {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .date-input.placeholder {
+            color: #6b7280;
+        }
+        
+        .code-example {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+        
+        .code-example pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        
+        .result-display {
+            margin-top: 10px;
+            padding: 10px;
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .result-display strong {
+            color: #1e40af;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .demo-container {
+                padding: 20px;
+            }
+        }
+        
+        /* 🆕 2단계: 빠른기간선택 버튼 스타일 */
+        .quick-range-buttons {
+            display: flex;
+            gap: 4px;
+            flex-wrap: nowrap;  /* 한줄로 강제 */
+            justify-content: center;
+            margin: 0;  /* 마진 제거 */
+            padding: 12px 8px;  /* 위아래 패딩 늘림 */
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;  /* 약간의 배경색 */
+        }
+
+        .quick-range-btn {
+            padding: 6px 8px;  /* 좌우 패딩 줄임 */
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            background: #fff;
+            color: #374151;
+            cursor: pointer;
+            font-size: 0.75em;  /* 폰트 크기 약간 줄임 */
+            font-weight: 500;
+            transition: all 0.2s;
+            flex: 1;  /* 균등 분배 */
+            min-width: 0;  /* 축소 가능 */
+            white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
+        }
+
+        .quick-range-btn:hover:not(:disabled) {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .quick-range-btn:active:not(:disabled) {
+            background: #2563eb;
+            border-color: #2563eb;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(37, 99, 235, 0.3);
+        }
+
+        .quick-range-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f9fafb;
+            color: #9ca3af;
+        }
+
+        .quick-range-btn:disabled:hover {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+            transform: none;
+        }
+
+        /* 빠른기간선택 모드일 때 footer 영역 최적화 */
+        .mini-calendar-container .datepicker-footer:has(.quick-range-buttons) {
+            padding: 0;
+            margin: 0;
+            min-height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">📅 스마트 기간선택</h1>
+        <p class="demo-subtitle">빠른기간선택 버튼과 고급 콜백 시스템을 갖춘 향상된 날짜/기간 선택 컴포넌트</p>
+        
+        <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 6px; padding: 15px; margin-bottom: 30px;">
+            <h3 style="margin: 0 0 10px 0; color: #0369a1; font-size: 1.1em;">🚀 주요 개선사항</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #0369a1; font-size: 0.9em;">
+                <li><strong>함수 시그니처 변경:</strong> openDatePicker(start, end, trigger, callbacks)</li>
+                <li><strong>팝업 내 빠른선택:</strong> [오늘/이번주/이번달/4주] 버튼 자동 추가</li>
+                <li><strong>년/월 직접 이동:</strong> 달력 헤더 클릭으로 년도/월 선택기 팝업</li>
+                <li><strong>4주 모드 감지:</strong> 2025.09.01 이후 달력에서 4주 버튼 자동 활성화</li>
+                <li><strong>고급 콜백:</strong> onQuickSelect, onManualSelect, onRangeComplete, onValidationError</li>
+                <li><strong>데이터 형식:</strong> YYYYMMDD (API 연동) + YYYY-MM-DD (화면 표시)</li>
+                <li><strong>완전 호환:</strong> 기존 코드 수정 없이 동작</li>
+            </ul>
+        </div>
+        
+        <!-- 단일 날짜 선택 섹션 -->
+        <div class="section">
+            <h2 class="section-title">🗓️ 단일 날짜 선택</h2>
+            
+            <div class="form-row">
+                <label class="form-label">기준일자</label>
+                <div class="date-input-container">
+                    <input type="text" class="date-input placeholder" id="birthDate" placeholder="YYYY-MM-DD" readonly onclick="openSinglePicker('birthDate')">
+                </div>
+            </div>
+
+            <div class="result-display" id="singleResult">
+                <strong>선택된 날짜:</strong> 날짜를 선택하면 YYYYMMDD, YYYY-MM-DD 형식으로 표시됩니다.
+            </div>
+            
+            <div class="code-example">
+                <pre>// 🔵 방법 1: 기존 createSingleDatePicker 방식 (완전 호환)
+const singlePicker = createSingleDatePicker({
+    onApply: (selectedDate) => {
+        console.log('선택된 날짜:', selectedDate);
+        // YYYYMMDD 형식으로 변환: formatDate(selectedDate)
+    }
+});
+singlePicker.open(inputElement);
+
+// 🆕 방법 2: 함수 오버로딩 방식 (1개 인자) 
+openDatePicker('singleInputId'); // 기간선택 함수를 단일용으로 사용
+
+// ✅ 두 방식 모두 동일하게 작동하며 기존 코드와 완전 호환됩니다.
+// 📅 년/월 직접 이동: 달력 헤더(2025.06) 클릭으로 년도/월 선택기 팝업</pre>
+            </div>
+        </div>
+        
+        <!-- 기간 선택 섹션 -->
+        <div class="section">
+            <h2 class="section-title">📊 스마트 기간선택 (주요 기능)</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">조회기간</label>
+                    <div class="date-input-container">
+                        <input type="text" class="date-input placeholder" id="startDate" placeholder="YYYY-MM-DD" readonly onclick="openDatePickerWithCallbacks('start')">
+                    </div>
+                    <div class="date-input-container">
+                        <input type="text" class="date-input placeholder" id="endDate" placeholder="YYYY-MM-DD" readonly onclick="openDatePickerWithCallbacks('end')">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button class="action-btn" onclick="clearRange()" style="padding: 8px 16px; border: 1px solid #e5e7eb; border-radius: 4px; background: #fff; color: #374151; cursor: pointer; font-size: 0.9em; margin-right: 10px;">초기화</button>
+                    <button class="action-btn primary" onclick="calculateRange()" style="padding: 8px 16px; border: 1px solid #6b7280; border-radius: 4px; background: #6b7280; color: #fff; cursor: pointer; font-size: 0.9em;">수동계산</button>
+                </div>
+                
+                <div class="validation-message" id="validationMessage" style="margin-top: 10px; padding: 10px; border-radius: 4px; font-size: 0.85em; display: none;"></div>
+            </div>
+            
+            <div class="result-display" id="rangeResult">
+                <strong>선택된 기간:</strong> 기간을 선택하면 자동 계산되며, API 전송용과 화면 표시용 형식으로 표시됩니다.
+            </div>
+            
+            <div class="code-example">
+                <pre>// 🆕 함수 시그니처 변경: openDatePicker(start, end, trigger, callbacks)
+openDatePicker('startDate', 'endDate', 'start', {
+    // 🎯 팝업 내 빠른선택 버튼 클릭 시 (자동 추가됨)
+    onQuickSelect: (startDate, endDate, rangeType, details) => {
+        console.log('빠른선택:', rangeType, details.formattedStart, '~', details.formattedEnd);
+        // rangeType: 'today', 'thisWeek', 'thisMonth', 'fourWeeks'
+        // 📊 데이터는 YYYYMMDD 형식으로 처리됨
+        if (rangeType === 'fourWeeks') {
+            // 4주 버튼: 4주 모드 달력일 때만 활성화
+            console.log('4주 기간:', details.formattedStart, '~', details.formattedEnd);
+        }
+    },
+    
+    // 👆 개별 날짜 선택 시  
+    onManualSelect: (selectedDate, inputType, details) => {
+        console.log('개별선택:', inputType, details.formattedDate);
+        // inputType: 'start' 또는 'end'
+        // 미래/과거 날짜 체크, 업무일 검증 등
+    },
+    
+    // ✅ 기간 선택 완료 시 (자동 트리거)
+    onRangeComplete: (startDate, endDate, details) => {
+        console.log('기간완성:', details.durationDays + '일간');
+        // API 호출, 데이터 조회, 장기간 경고 등
+        const apiData = {
+            start: details.formattedStart.replace(/-/g, ''), // YYYYMMDD
+            end: details.formattedEnd.replace(/-/g, '')     // YYYYMMDD
+        };
+    },
+    
+    // ❌ 유효성 검사 실패 시
+    onValidationError: (errorType, message, details) => {
+        console.error('검증실패:', errorType, message);
+        // 시작일 > 종료일, 날짜 형식 오류 등
+    }
+});
+
+// 📝 함수 오버로딩: 기존 방식도 호환 (1개 인자)
+openDatePicker('singleDate'); // 단일 날짜 선택
+
+// ✨ 특징 요약:
+// 🎯 팝업 내 빠른선택: [오늘/이번주/이번달/4주] 버튼 자동 추가
+// 📅 년/월 직접 이동: 달력 헤더 클릭으로 년도/월 선택기 팝업
+// 🔄 4주 모드 감지: 2025.09.01 이후 달력에서 4주 버튼 자동 활성화
+// 📊 YYYYMMDD 형식: 백엔드 API와 직접 연동 가능</pre>
+            </div>
+            
+
+        </div>
+    </div>
+
+    <!-- DatePicker 데모 -->
+    <script src="js/CalendarCore.js"></script>
+    <script src="js/DatePickerComponent.js"></script>
+    <script>
+        let singlePicker, datePicker;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 단일 날짜 선택 컴포넌트 인스턴스
+            singlePicker = createSingleDatePicker({
+                onApply: (selectedDate) => {
+                    const result = document.getElementById('singleResult');
+                    const dateStr = selectedDate.toLocaleDateString('ko-KR');
+                    result.innerHTML = `
+                        <strong>선택된 날짜:</strong> ${dateStr}<br>
+                        <strong>📊 API 전송용 (YYYYMMDD):</strong> ${formatDate(selectedDate)}<br>
+                        <strong>🎯 화면 표시용 (YYYY-MM-DD):</strong> ${formatDateForDisplay(selectedDate)}
+                    `;
+                }
+            });
+            
+            // 기간 선택용 날짜 선택 컴포넌트 인스턴스 (자동 적용)
+            datePicker = createSingleDatePicker({
+                onApply: (selectedDate) => {
+                    const currentInput = datePicker.currentInputElement;
+                    if (currentInput) {
+                        const dateStr = formatDateForDisplay(selectedDate);
+                        currentInput.value = dateStr;
+                        currentInput.classList.remove('placeholder');
+                        currentInput.classList.add('has-value');
+                        
+                        // 🆕 개별선택 콜백 호출
+                        if (window.datePickerCallbacks && window.datePickerCallbacks.onManualSelect) {
+                            try {
+                                const inputType = currentInput.id === window.datePickerCallbacks.startInputId ? 'start' : 'end';
+                                window.datePickerCallbacks.onManualSelect(selectedDate, inputType, {
+                                    inputId: currentInput.id,
+                                    inputElement: currentInput,
+                                    formattedDate: dateStr,
+                                    triggeredBy: window.datePickerCallbacks.triggeredBy
+                                });
+                                console.log('✅ onManualSelect 콜백 호출 완료:', inputType, dateStr);
+                            } catch (error) {
+                                console.error('❌ onManualSelect 콜백 실행 오류:', error);
+                            }
+                        }
+                        
+                        // 날짜 선택 후 유효성 검사
+                        validateDateRange();
+                        
+                        // 시작일자와 종료일자가 모두 선택되면 자동으로 계산
+                        autoCalculateIfBothDatesSelected();
+                    }
+                }
+            });
+        });
+
+        // 단일 날짜 선택 열기
+        function openSinglePicker(inputId) {
+            const input = document.getElementById(inputId);
+            if (singlePicker) {
+                singlePicker.open(input);
+            }
+        }
+        
+        // 🆕 고급 콜백 시스템을 적용한 기간 선택 열기 (데모용)
+        function openDatePickerWithCallbacks(triggeredBy) {
+            openDatePicker('startDate', 'endDate', triggeredBy, {
+                onQuickSelect: (startDate, endDate, rangeType, details) => {
+                    console.log('🎯 [콜백] 빠른선택:', rangeType, details.formattedStart, '~', details.formattedEnd);
+                    
+                    // 추가 로직 예시: 선택된 기간에 따른 특별 처리
+                    if (rangeType === 'fourWeeks') {
+                        console.log('🗓️ [콜백] 4주 기간 선택됨 - 특별 처리 가능');
+                    }
+                },
+                
+                onManualSelect: (selectedDate, inputType, details) => {
+                    console.log('👆 [콜백] 개별선택:', inputType, details.formattedDate, '| 트리거:', details.triggeredBy);
+                    
+                    // 추가 로직 예시: 선택한 날짜에 따른 피드백
+                    const today = new Date();
+                    if (selectedDate > today) {
+                        console.log('🔮 [콜백] 미래 날짜 선택됨');
+                    }
+                },
+                
+                onRangeComplete: (startDate, endDate, details) => {
+                    console.log('✅ [콜백] 기간완성:', details.formattedStart, '~', details.formattedEnd, `(${details.durationDays}일)`);
+                    
+                    // 추가 로직 예시: 기간에 따른 경고나 추천
+                    if (details.durationDays > 90) {
+                        console.log('⚠️ [콜백] 90일 이상 장기간 선택됨 - 성능 고려 필요');
+                    } else if (details.durationDays === 1) {
+                        console.log('📅 [콜백] 단일일 선택됨');
+                    }
+                },
+                
+                onValidationError: (errorType, message, details) => {
+                    console.error('❌ [콜백] 유효성 검사 실패:', errorType, message);
+                    console.error('🔍 [콜백] 오류 세부정보:', details.formattedStart, '>', details.formattedEnd);
+                    
+                    // 추가 로직 예시: 사용자 친화적 오류 처리
+                    if (errorType === 'startAfterEnd') {
+                        console.log('💡 [콜백] 날짜 순서 자동 교정 가능');
+                    }
+                }
+            });
+        }
+        
+        // 기간 선택을 위한 날짜 선택 열기 (함수 오버로딩 지원 + 고급 콜백)
+        function openDatePicker(startInputId, endInputId, triggeredBy, callbacks = {}) {
+            // 📝 1개 인자: 기존 단일 날짜 선택 방식 (호환성 유지)
+            if (arguments.length === 1) {
+                console.log('🔵 기존 방식 호출:', startInputId);
+                const input = document.getElementById(startInputId);
+                if (datePicker) {
+                    datePicker.open(input);
+                    
+                    // 기존 빠른선택 버튼 제거 (단일 모드에서는 불필요)
+                    setTimeout(() => {
+                        removeQuickRangeButtons();
+                    }, 100);
+                }
+                return;
+            }
+            
+            // 📝 3개 또는 4개 인자: 새로운 기간 선택 방식 (고급 콜백 지원)
+            if (arguments.length >= 3) {
+                console.log('🆕 신규 방식 호출:', startInputId, '+', endInputId, '| 트리거:', triggeredBy);
+                console.log('🔧 콜백 옵션:', callbacks);
+                
+                const startInput = document.getElementById(startInputId);
+                const endInput = document.getElementById(endInputId);
+                
+                if (!startInput || !endInput) {
+                    console.error('❌ input 요소를 찾을 수 없습니다:', startInputId, endInputId);
+                    return;
+                }
+                
+                if (triggeredBy !== 'start' && triggeredBy !== 'end') {
+                    console.error('❌ triggeredBy는 "start" 또는 "end"이어야 합니다:', triggeredBy);
+                    return;
+                }
+                
+                // 🆕 고급 콜백 시스템: 글로벌 저장 (빠른선택/개별선택에서 접근 가능)
+                window.datePickerCallbacks = {
+                    onQuickSelect: callbacks.onQuickSelect || null,      // 빠른선택 완료 시
+                    onManualSelect: callbacks.onManualSelect || null,    // 개별 날짜 선택 시  
+                    onRangeComplete: callbacks.onRangeComplete || null,  // 기간 선택 완료 시
+                    onValidationError: callbacks.onValidationError || null, // 유효성 검사 실패 시
+                    startInputId: startInputId,
+                    endInputId: endInputId,
+                    triggeredBy: triggeredBy
+                };
+                
+                console.log('🔧 콜백 시스템 활성화:', window.datePickerCallbacks);
+                
+                // 🚧 TODO: 2단계에서 빠른기간선택 버튼 추가 예정
+                // 🚧 TODO: 3단계에서 콜백 처리 구현 예정
+                
+                // 트리거된 input 기준으로 팝업 열기
+                const targetInput = triggeredBy === 'start' ? startInput : endInput;
+                console.log('⚙️ 임시:', triggeredBy === 'start' ? '시작일' : '종료일', '기준으로 팝업 열기');
+                
+                if (datePicker) {
+                    // 팝업 열기
+                    datePicker.open(targetInput);
+                    
+                    // 빠른기간선택 버튼 추가 (충분한 지연시간)
+                    setTimeout(() => {
+                        addQuickRangeButtons(startInputId, endInputId, triggeredBy);
+                        
+                        // 달력 상태 변경 감지를 위한 옵저버 설정
+                        setupCalendarObserver(startInputId, endInputId);
+                    }, 300); // 달력 렌더링 완료 후 추가
+                }
+                
+                return;
+            }
+            
+            // 📝 2개 인자: 에러 처리 (혼란 방지)
+            if (arguments.length === 2) {
+                console.error('❌ 2개 인자는 지원하지 않습니다. 3번째 인자(triggeredBy)가 필요합니다.');
+                console.error('💡 올바른 호출: openDatePicker("startDate", "endDate", "start")');
+                return;
+            }
+            
+            console.error('❌ 잘못된 인자 개수:', arguments.length, '(1개 또는 3개 필요)');
+        }
+            
+        // 기간 계산
+        function calculateRange() {
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            const result = document.getElementById('rangeResult');
+            
+            if (!startInput.value || !endInput.value) {
+                showValidationMessage('시작일자와 종료일자를 모두 선택해주세요.', 'error');
+                return;
+            }
+            
+            const startDate = parseDate(startInput.value);
+            const endDate = parseDate(endInput.value);
+            
+            if (startDate > endDate) {
+                showValidationMessage('시작일자가 종료일자보다 늦을 수 없습니다.', 'error');
+                return;
+            }
+            
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const startStr = startDate.toLocaleDateString('ko-KR');
+            const endStr = endDate.toLocaleDateString('ko-KR');
+            
+            result.innerHTML = `
+                <strong>선택된 기간:</strong><br>
+                ${startStr} ~ ${endStr}<br>
+                <strong>기간:</strong> ${days}일간<br>
+                <strong>📊 API 전송용 (YYYYMMDD):</strong> ${formatDate(startDate)} ~ ${formatDate(endDate)}<br>
+                <strong>🎯 화면 표시용 (YYYY-MM-DD):</strong> ${formatDateForDisplay(startDate)} ~ ${formatDateForDisplay(endDate)}
+            `;
+            
+            hideValidationMessage();
+        }
+        
+        // 기간 초기화
+        function clearRange() {
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            const result = document.getElementById('rangeResult');
+            
+            startInput.value = '';
+            startInput.classList.add('placeholder');
+            startInput.classList.remove('has-value');
+            
+            endInput.value = '';
+            endInput.classList.add('placeholder');
+            endInput.classList.remove('has-value');
+            
+            result.innerHTML = '<strong>선택된 기간:</strong> 기간을 선택하면 자동 계산되며, API 전송용과 화면 표시용 형식으로 표시됩니다.';
+            hideValidationMessage();
+        }
+        
+
+        
+        // 유효성 검사 메시지 표시
+        function showValidationMessage(message, type) {
+            const msgDiv = document.getElementById('validationMessage');
+            msgDiv.textContent = message;
+            msgDiv.style.display = 'block';
+            msgDiv.style.backgroundColor = type === 'error' ? '#f8d7da' : '#d1ecf1';
+            msgDiv.style.color = type === 'error' ? '#721c24' : '#0c5460';
+            msgDiv.style.border = `1px solid ${type === 'error' ? '#f5c6cb' : '#bee5eb'}`;
+        }
+
+        // 유효성 검사 메시지 숨기기
+        function hideValidationMessage() {
+            const msgDiv = document.getElementById('validationMessage');
+            msgDiv.style.display = 'none';
+        }
+        
+        // 날짜 유효성 검사
+        function validateDateRange() {
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            
+            if (startInput.value && endInput.value) {
+                const startDate = parseDate(startInput.value);
+                const endDate = parseDate(endInput.value);
+                
+                if (startDate > endDate) {
+                    const errorMessage = '시작일자가 종료일자보다 늦을 수 없습니다.';
+                    showValidationMessage(errorMessage, 'error');
+                    
+                    // 🆕 유효성 검사 실패 콜백 호출
+                    if (window.datePickerCallbacks && window.datePickerCallbacks.onValidationError) {
+                        try {
+                            window.datePickerCallbacks.onValidationError('startAfterEnd', errorMessage, {
+                                startDate: startDate,
+                                endDate: endDate,
+                                startInputId: window.datePickerCallbacks.startInputId,
+                                endInputId: window.datePickerCallbacks.endInputId,
+                                formattedStart: formatDateForDisplay(startDate),
+                                formattedEnd: formatDateForDisplay(endDate),
+                                errorType: 'startAfterEnd'
+                            });
+                            console.log('✅ onValidationError 콜백 호출 완료:', 'startAfterEnd');
+                        } catch (error) {
+                            console.error('❌ onValidationError 콜백 실행 오류:', error);
+                        }
+                    }
+                } else {
+                    hideValidationMessage();
+                }
+            }
+        }
+        
+        // 시작/종료일 모두 선택 시 자동 계산
+        function autoCalculateIfBothDatesSelected() {
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            
+            if (startInput.value && endInput.value) {
+                const startDate = parseDate(startInput.value);
+                const endDate = parseDate(endInput.value);
+                if (startDate <= endDate) {
+                    calculateRange();
+                    
+                    // 🆕 기간완성 콜백 호출
+                    if (window.datePickerCallbacks && window.datePickerCallbacks.onRangeComplete) {
+                        try {
+                            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                            window.datePickerCallbacks.onRangeComplete(startDate, endDate, {
+                                startInputId: window.datePickerCallbacks.startInputId,
+                                endInputId: window.datePickerCallbacks.endInputId,
+                                formattedStart: formatDateForDisplay(startDate),
+                                formattedEnd: formatDateForDisplay(endDate),
+                                durationDays: days,
+                                isAutoCalculated: true
+                            });
+                            console.log('✅ onRangeComplete 콜백 호출 완료:', formatDateForDisplay(startDate), '~', formatDateForDisplay(endDate));
+                        } catch (error) {
+                            console.error('❌ onRangeComplete 콜백 실행 오류:', error);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // YYYY-MM-DD 형식의 문자열을 Date 객체로 변환
+        function parseDate(dateStr) {
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            return null;
+        }
+        
+        // Date 객체를 YYYY-MM-DD 형식으로 변환 (표시용)
+        function formatDateForDisplay(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Date 객체를 YYYYMMDD 형식으로 변환 (데이터 전송용)
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+        
+        // 🆕 2단계: 빠른기간선택 버튼 추가
+        function addQuickRangeButtons(startInputId, endInputId, triggeredBy) {
+            // 현재 열린 datePicker의 팝업 찾기
+            const pickerElement = document.querySelector('.datepicker-overlay.show .mini-calendar-container');
+            if (!pickerElement) {
+                console.error('❌ 활성화된 달력 팝업을 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 기존 빠른선택 버튼이 있으면 제거 (중복 방지)
+            const existingButtons = pickerElement.querySelector('.quick-range-buttons');
+            if (existingButtons) {
+                existingButtons.remove();
+            }
+            
+            // footer 영역 찾기
+            const footerElement = pickerElement.querySelector('.datepicker-footer');
+            if (!footerElement) {
+                console.error('❌ footer 영역을 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 4주 모드 여부 확인 (헤더 텍스트 우선)
+            let is4WeekMode = false;
+            
+            // 🎯 방법 1: 헤더 텍스트로 확인 (가장 확실한 방법)
+            const headerText = pickerElement.querySelector('.mini-calendar-title span, #calendarYearMonth');
+            console.log('🔍 헤더 요소 찾기:', headerText);
+            
+            if (headerText && headerText.textContent) {
+                const text = headerText.textContent.trim();
+                console.log('🔍 헤더 텍스트 원본:', `"${text}"`);
+                
+                // 4주 모드 패턴 체크
+                const is4WeekPattern = text.includes('~') && text.match(/\d{4}\.\d{2}\.\d{2}\s*~\s*\d{4}\.\d{2}\.\d{2}/);
+                console.log('🔍 4주 모드 패턴 체크:', is4WeekPattern);
+                
+                // 일반 모드 패턴 체크 (강제로 우선 적용)
+                const isNormalPattern = text.match(/^\d{4}\.\d{1,2}$/);
+                console.log('🔍 일반 모드 패턴 체크:', isNormalPattern);
+                
+                if (isNormalPattern) {
+                    is4WeekMode = false;
+                    console.log('✅ 일반 모드로 확정:', text, '→ false');
+                } else if (is4WeekPattern) {
+                    is4WeekMode = true;
+                    console.log('✅ 4주 모드로 확정:', text, '→ true');
+                } else {
+                    is4WeekMode = false;
+                    console.log('❓ 패턴 불명확, 기본값 false:', text, '→ false');
+                }
+            } else {
+                console.log('❌ 헤더 텍스트를 찾을 수 없음');
+            }
+            
+            console.log('🎯 최종 4주 모드 판정:', is4WeekMode);
+            
+            // 빠른선택 버튼 HTML 생성 (4주 버튼은 초기에 무조건 비활성화)
+            const quickButtonsHTML = `
+                <div class="quick-range-buttons">
+                    <button class="quick-range-btn" data-range="today">오늘</button>
+                    <button class="quick-range-btn" data-range="thisWeek">이번주</button>
+                    <button class="quick-range-btn" data-range="thisMonth">이번달</button>
+                    <button class="quick-range-btn" data-range="fourWeeks" disabled>4주</button>
+                </div>
+            `;
+            
+            console.log('🔧 4주 버튼 상태 결정:', is4WeekMode ? '활성화' : '비활성화');
+            
+            // footer 영역의 모든 기존 내용 숨기기
+            const allFooterChildren = footerElement.children;
+            for (let i = 0; i < allFooterChildren.length; i++) {
+                const child = allFooterChildren[i];
+                if (!child.classList.contains('quick-range-buttons')) {
+                    child.style.display = 'none';
+                }
+            }
+            
+            // 특별히 선택날짜 표시 영역 숨기기
+            const selectedDisplay = footerElement.querySelector('.datepicker-selected');
+            if (selectedDisplay) {
+                selectedDisplay.style.display = 'none';
+            }
+            
+            // footer를 완전히 비우고 버튼만 추가
+            footerElement.innerHTML = quickButtonsHTML;
+            
+            // 버튼 클릭 이벤트 바인딩
+            const quickButtons = footerElement.querySelectorAll('.quick-range-btn');
+            quickButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const rangeType = button.dataset.range;
+                    if (button.disabled) {
+                        console.log('❌ 비활성화된 버튼 클릭:', rangeType);
+                        return;
+                    }
+                    
+                    handleQuickRangeSelection(rangeType, startInputId, endInputId);
+                });
+            });
+            
+            // 4주 버튼 상태를 확실하게 설정
+            const fourWeeksBtn = footerElement.querySelector('[data-range="fourWeeks"]');
+            if (fourWeeksBtn) {
+                console.log('🔧 4주 버튼 현재 상태:', { disabled: fourWeeksBtn.disabled, is4WeekMode });
+                
+                // 확실하게 상태 설정
+                if (is4WeekMode) {
+                    fourWeeksBtn.disabled = false;
+                    fourWeeksBtn.removeAttribute('disabled');
+                    console.log('✅ 4주 버튼 활성화 완료');
+                } else {
+                    fourWeeksBtn.disabled = true;
+                    fourWeeksBtn.setAttribute('disabled', 'disabled');
+                    console.log('✅ 4주 버튼 비활성화 완료');
+                }
+                
+                console.log('🔧 4주 버튼 최종 상태:', { disabled: fourWeeksBtn.disabled });
+            } else {
+                console.log('❌ 4주 버튼을 찾을 수 없음');
+            }
+            
+            console.log('✅ 빠른기간선택 버튼 추가 완료 | 4주모드:', is4WeekMode);
+        }
+        
+        // 달력 상태 변경 감지 옵저버 설정
+        function setupCalendarObserver(startInputId, endInputId) {
+            const pickerElement = document.querySelector('.datepicker-overlay.show .mini-calendar-container');
+            if (!pickerElement) return;
+            
+            // 기존 옵저버 정리
+            if (window.calendarObserver) {
+                window.calendarObserver.disconnect();
+            }
+            
+            // 새 옵저버 설정
+            window.calendarObserver = new MutationObserver((mutations) => {
+                let shouldUpdate = false;
+                
+                mutations.forEach((mutation) => {
+                    // 헤더 텍스트 변경 감지
+                    if (mutation.target.matches && 
+                        (mutation.target.matches('.mini-calendar-title span') || 
+                         mutation.target.matches('#calendarYearMonth'))) {
+                        shouldUpdate = true;
+                    }
+                    
+                    // 그리드 클래스 변경 감지
+                    if (mutation.type === 'attributes' && 
+                        mutation.attributeName === 'class' &&
+                        mutation.target.classList.contains('mini-calendar-grid')) {
+                        shouldUpdate = true;
+                    }
+                    
+                    // 그리드 내용 변경 감지
+                    if (mutation.target.classList && 
+                        mutation.target.classList.contains('mini-calendar-grid')) {
+                        shouldUpdate = true;
+                    }
+                });
+                
+                if (shouldUpdate) {
+                    console.log('🔄 달력 상태 변경 감지 → 버튼 상태 업데이트');
+                    setTimeout(() => {
+                        updateQuickRangeButtonsState();
+                    }, 100);
+                }
+            });
+            
+            // 감지할 대상들
+            const targetElements = [
+                pickerElement.querySelector('.mini-calendar-title'),
+                pickerElement.querySelector('#calendarYearMonth'),
+                pickerElement.querySelector('.mini-calendar-grid'),
+                pickerElement.querySelector('.mini-calendar-header')
+            ].filter(el => el !== null);
+            
+            targetElements.forEach(target => {
+                window.calendarObserver.observe(target, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class'],
+                    characterData: true
+                });
+            });
+            
+            console.log('👁️ 달력 상태 변경 옵저버 설정 완료');
+            
+            // 팝업 닫힘 감지를 위한 주기적 체크
+            if (window.popupCheckInterval) {
+                clearInterval(window.popupCheckInterval);
+            }
+            
+            window.popupCheckInterval = setInterval(() => {
+                const activePicker = document.querySelector('.datepicker-overlay.show');
+                if (!activePicker) {
+                    // 팝업이 닫혔으면 옵저버 정리
+                    if (window.calendarObserver) {
+                        window.calendarObserver.disconnect();
+                        window.calendarObserver = null;
+                        console.log('👁️ 팝업 닫힘 감지 → 옵저버 자동 해제됨');
+                    }
+                    clearInterval(window.popupCheckInterval);
+                    window.popupCheckInterval = null;
+                }
+            }, 1000); // 1초마다 체크
+        }
+        
+        // 빠른선택 버튼 상태만 업데이트
+        function updateQuickRangeButtonsState() {
+            const pickerElement = document.querySelector('.datepicker-overlay.show .mini-calendar-container');
+            if (!pickerElement) return;
+            
+            const fourWeeksBtn = pickerElement.querySelector('[data-range="fourWeeks"]');
+            if (!fourWeeksBtn) return;
+            
+            // 4주 모드 재확인 (헤더 텍스트 우선)
+            let is4WeekMode = false;
+            
+            // 🎯 방법 1: 헤더 텍스트로 확인 (가장 확실한 방법)
+            const headerText = pickerElement.querySelector('.mini-calendar-title span, #calendarYearMonth');
+            console.log('🔍 업데이트 - 헤더 요소 찾기:', headerText);
+            
+            if (headerText && headerText.textContent) {
+                const text = headerText.textContent.trim();
+                console.log('🔍 업데이트 - 헤더 텍스트 원본:', `"${text}"`);
+                
+                // 4주 모드 패턴 체크
+                const is4WeekPattern = text.includes('~') && text.match(/\d{4}\.\d{2}\.\d{2}\s*~\s*\d{4}\.\d{2}\.\d{2}/);
+                console.log('🔍 업데이트 - 4주 모드 패턴 체크:', is4WeekPattern);
+                
+                // 일반 모드 패턴 체크 (강제로 우선 적용)
+                const isNormalPattern = text.match(/^\d{4}\.\d{1,2}$/);
+                console.log('🔍 업데이트 - 일반 모드 패턴 체크:', isNormalPattern);
+                
+                if (isNormalPattern) {
+                    is4WeekMode = false;
+                    console.log('✅ 업데이트 - 일반 모드로 확정:', text, '→ false');
+                } else if (is4WeekPattern) {
+                    is4WeekMode = true;
+                    console.log('✅ 업데이트 - 4주 모드로 확정:', text, '→ true');
+                } else {
+                    is4WeekMode = false;
+                    console.log('❓ 업데이트 - 패턴 불명확, 기본값 false:', text, '→ false');
+                }
+            } else {
+                console.log('❌ 업데이트 - 헤더 텍스트를 찾을 수 없음');
+            }
+            
+
+            
+            // 버튼 상태 확실하게 업데이트
+            const wasDisabled = fourWeeksBtn.disabled;
+            console.log('🔧 업데이트 - 4주 버튼 이전 상태:', { disabled: wasDisabled, is4WeekMode });
+            
+            // 확실하게 상태 설정
+            if (is4WeekMode) {
+                fourWeeksBtn.disabled = false;
+                fourWeeksBtn.removeAttribute('disabled');
+                console.log('✅ 업데이트 - 4주 버튼 활성화 완료');
+            } else {
+                fourWeeksBtn.disabled = true;
+                fourWeeksBtn.setAttribute('disabled', 'disabled');
+                console.log('✅ 업데이트 - 4주 버튼 비활성화 완료');
+            }
+            
+            console.log('🔧 업데이트 - 4주 버튼 최종 상태:', { disabled: fourWeeksBtn.disabled });
+            
+            if (wasDisabled !== fourWeeksBtn.disabled) {
+                console.log('✅ 4주 버튼 상태 변경됨:', wasDisabled ? '비활성화' : '활성화', '→', fourWeeksBtn.disabled ? '비활성화' : '활성화');
+            }
+        }
+        
+        // 빠른기간선택 버튼 제거
+        function removeQuickRangeButtons() {
+            // 옵저버 정리
+            if (window.calendarObserver) {
+                window.calendarObserver.disconnect();
+                window.calendarObserver = null;
+                console.log('👁️ 달력 상태 변경 옵저버 해제됨');
+            }
+            
+            const pickerElement = document.querySelector('.datepicker-overlay.show .mini-calendar-container');
+            if (pickerElement) {
+                const existingButtons = pickerElement.querySelector('.quick-range-buttons');
+                if (existingButtons) {
+                    existingButtons.remove();
+                    console.log('🗑️ 빠른기간선택 버튼 제거됨');
+                }
+                
+                // footer 영역을 원래 상태로 복원 (단일 모드용)
+                const footerElement = pickerElement.querySelector('.datepicker-footer');
+                if (footerElement) {
+                    // 기본 footer 내용 복원
+                    footerElement.innerHTML = '<div class="datepicker-selected">날짜를 선택하세요</div>';
+                }
+            }
+        }
+        
+        // 빠른기간선택 처리
+        function handleQuickRangeSelection(rangeType, startInputId, endInputId) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            switch(rangeType) {
+                case 'today':
+                    startDate = endDate = new Date(today);
+                    break;
+                    
+                case 'thisWeek':
+                    // 이번 주 (월요일 ~ 일요일)
+                    startDate = new Date(today);
+                    const dayOfWeek = (today.getDay() + 6) % 7; // 월요일=0
+                    startDate.setDate(today.getDate() - dayOfWeek);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                    break;
+                    
+                case 'thisMonth':
+                    // 이번 달 (1일 ~ 마지막일)
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                    
+                case 'fourWeeks':
+                    // 4주 단위 (화면에 표시된 타이틀 기간 그대로 사용)
+                    const pickerElement = document.querySelector('.datepicker-overlay.show .mini-calendar-container');
+                    if (pickerElement) {
+                        const headerText = pickerElement.querySelector('.mini-calendar-title span, #calendarYearMonth');
+                        if (headerText && headerText.textContent) {
+                            const titleText = headerText.textContent.trim();
+                            console.log('🎯 4주 타이틀 텍스트:', titleText);
+                            
+                            // "2025.09.29 ~ 2025.10.26" 형태에서 날짜 추출
+                            const dateRangeMatch = titleText.match(/(\d{4})\.(\d{2})\.(\d{2})\s*~\s*(\d{4})\.(\d{2})\.(\d{2})/);
+                            if (dateRangeMatch) {
+                                // 시작일: 2025.09.29
+                                startDate = new Date(
+                                    parseInt(dateRangeMatch[1]), 
+                                    parseInt(dateRangeMatch[2]) - 1, 
+                                    parseInt(dateRangeMatch[3])
+                                );
+                                
+                                // 종료일: 2025.10.26
+                                endDate = new Date(
+                                    parseInt(dateRangeMatch[4]), 
+                                    parseInt(dateRangeMatch[5]) - 1, 
+                                    parseInt(dateRangeMatch[6])
+                                );
+                                
+                                console.log('🎯 4주 타이틀에서 파싱된 기간:', formatDate(startDate), '~', formatDate(endDate));
+                            } else {
+                                console.error('❌ 4주 모드 타이틀에서 날짜 범위를 파싱할 수 없습니다:', titleText);
+                                return;
+                            }
+                        } else {
+                            console.error('❌ 달력 타이틀 텍스트를 찾을 수 없습니다.');
+                            return;
+                        }
+                    } else {
+                        console.error('❌ 활성화된 달력 팝업을 찾을 수 없습니다.');
+                        return;
+                    }
+                    break;
+                    
+                default:
+                    console.error('❌ 알 수 없는 범위 타입:', rangeType);
+                    return;
+            }
+            
+            // 두 input에 날짜 적용
+            applyDateRangeToInputs(startDate, endDate, startInputId, endInputId);
+            
+            // 🆕 빠른선택 콜백 호출
+            if (window.datePickerCallbacks && window.datePickerCallbacks.onQuickSelect) {
+                try {
+                    window.datePickerCallbacks.onQuickSelect(startDate, endDate, rangeType, {
+                        startInputId: startInputId,
+                        endInputId: endInputId,
+                        formattedStart: formatDateForDisplay(startDate),
+                        formattedEnd: formatDateForDisplay(endDate),
+                        rangeType: rangeType
+                    });
+                    console.log('✅ onQuickSelect 콜백 호출 완료:', rangeType);
+                } catch (error) {
+                    console.error('❌ onQuickSelect 콜백 실행 오류:', error);
+                }
+            }
+            
+            // 팝업 닫기
+            if (datePicker) {
+                datePicker.close();
+            }
+            
+            console.log('🎯 빠른기간선택 완료:', rangeType, formatDate(startDate), '~', formatDate(endDate));
+        }
+        
+        // 기간을 두 input에 적용
+        function applyDateRangeToInputs(startDate, endDate, startInputId, endInputId) {
+            const startInput = document.getElementById(startInputId);
+            const endInput = document.getElementById(endInputId);
+            
+            if (startInput && endInput) {
+                // YYYY-MM-DD 형식으로 적용
+                startInput.value = formatDateForDisplay(startDate);
+                endInput.value = formatDateForDisplay(endDate);
+                
+                // 스타일 클래스 적용
+                startInput.classList.remove('placeholder');
+                endInput.classList.remove('placeholder');
+                startInput.classList.add('has-value');
+                endInput.classList.add('has-value');
+                
+                // 기존 유효성 검사 및 자동 계산
+                validateDateRange();
+                autoCalculateIfBothDatesSelected();
+                
+                console.log('✅ 기간 적용 완료:', startInputId, '←', formatDate(startDate), '|', endInputId, '←', formatDate(endDate));
+            } else {
+                console.error('❌ input 요소를 찾을 수 없습니다:', startInputId, endInputId);
+            }
+        }
+    </script>
+</body>
+</html> 
