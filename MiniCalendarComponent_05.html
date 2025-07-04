@@ -1,5 +1,18 @@
 <!-- 공통 CSS 파일 링크 -->
 <link rel="stylesheet" href="css/common.css">
+<script>
+  // 이미 로드된 경우 중복 로드 방지
+  if (typeof window.CalendarCore === 'undefined') {
+    var script1 = document.createElement('script');
+    script1.src = 'js/CalendarCore.js';
+    document.head.appendChild(script1);
+  }
+  if (typeof window.YearMonthPicker === 'undefined') {
+    var script2 = document.createElement('script');
+    script2.src = 'js/YearMonthPicker.js';
+    document.head.appendChild(script2);
+  }
+</script>
 
 <style>
     /* 미니달력 4번 전용 - 월별 그룹 라인 스타일링 */
@@ -143,6 +156,7 @@
     <script>
         // 공통 상수들 - CalendarCore.js에서 가져오기
         const coreREF_DATE = CalendarCore.REFERENCE_DATE;
+        const coreNEXT_BLOCK_DATE = CalendarCore.NEXT_BLOCK_DATE;
         const coreMINI_WEEK_DAYS = CalendarCore.MINI_WEEK_DAYS;
         const miniWeekDays = coreMINI_WEEK_DAYS; // ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
         let miniCurrentDate = new Date(); // 오늘 날짜로 초기화
