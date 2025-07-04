@@ -233,6 +233,8 @@ class DatePickerComponent {
 
     // ===== 년도/월 빠른 선택 기능 =====
     toggleYearMonthPicker() {
+        // DatePicker는 기존 코드 유지 (팝업 위치 문제로 인해)
+        console.log('[DatePicker] 기존 코드 사용');
         const existingPicker = this.picker.querySelector('.year-month-picker');
         if (existingPicker) {
             this.hideYearMonthPicker();

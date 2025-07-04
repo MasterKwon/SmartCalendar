@@ -530,10 +530,6 @@ body {
     }
 }
 
-.year-month-picker.show {
-    display: block;
-}
-
 /* 년도 선택 영역 */
 .year-picker {
     margin-bottom: 12px;
