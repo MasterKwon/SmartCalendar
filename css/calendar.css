@@ -278,12 +278,15 @@ body {
         grid-template-columns: repeat(7, 1fr);
     }
     
-    /* 모바일에서 주 합계 열 숨기기 */
+    /* 모바일에서 주 합계 관련 요소들 숨기기 */
     .weekly-cell {
         display: none !important;
     }
     
-    /* 모바일에서 주 합계 헤더 숨기기 */
+    .weekly-header {
+        display: none !important;
+    }
+    
     .calendar-weekday:nth-child(8) {
         display: none !important;
     }
