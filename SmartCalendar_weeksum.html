@@ -105,11 +105,75 @@
             transform: translateY(0);
         }
         
+        /* 달력 그리드를 8열로 변경 (기존 7열 + 주차 1열) */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0px;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        /* 주차 열 스타일 - 미니멀한 디자인 */
+        .weekly-header {
+            background: #ffffff;
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: 500;
+            color: #9ca3af;
+            border-bottom: 1px solid #e5e7eb;
+            border-left: 15px solid transparent;
+            font-size: 0.75em;
+            margin-left: 10px;
+            letter-spacing: 0.5px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .weekly-cell {
+            background: #ffffff;
+            padding: 8px 6px;
+            text-align: center;
+            border: 1px solid #f3f4f6;
+            border-left: 15px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            margin-left: 10px;
+            min-height: 55px;
+        }
+        
+        .week-number {
+            display: none; /* 주차 번호 숨기기 */
+        }
+        
+        .week-time {
+            font-weight: 600;
+            color: #3b82f6;
+            font-size: 0.95em;
+        }
+        
+        /* 빈 시간 데이터 스타일 */
+        .week-time:empty::after {
+            content: "0시간 0분";
+            color: #9ca3af;
+            font-weight: 400;
+        }
+        
         /* 원본 스타일에 맞춘 달력 톤앤매너 */
         .calendar-day.saturday .date-number,
         .calendar-day.sunday .date-number {
             color: #dc2626 !important; /* 토요일, 일요일 빨간색 */
         }
+        
+
         
         /* 선택된 날짜 스타일 제거 */
         .calendar-day.selected {
@@ -122,7 +186,7 @@
             border-color: inherit !important;
         }
         
-        /* 오늘 날짜를 원형으로 처리 - 셀 색상 완전 제거 */
+        /* 9번: 오늘 날짜를 원형으로 처리 - 셀 색상 완전 제거 */
         .calendar-day.today {
             background-color: #ffffff !important;
             border: 1px solid #f3f4f6 !important;
@@ -172,7 +236,7 @@
             margin: 2px !important;
         }
         
-        /* 오늘 이전 날짜 사선 패턴 음영처리 - 원본과 동일한 느낌 */
+        /* 10번: 오늘 이전 날짜 사선 패턴 음영처리 - 원본과 동일한 느낌 */
         .calendar-day.past::after,
         .calendar-day.other-month::after,
         .calendar-day.disabled::after {
@@ -208,7 +272,10 @@
             opacity: 1 !important;
         }
         
-        /* 요일 헤더를 원본과 똑같이 만들기 */
+
+
+        
+        /* 요일 헤더를 원본과 똑같이 만들기 - 높이 255px 수준 */
         .calendar-weekday {
             background: #ffffff !important;
             padding: 10px 6px !important;
@@ -228,7 +295,29 @@
             background: #ffffff !important;
         }
         
-        /* 달력 크기를 원본과 비슷하게 조정 */
+        /* 전체 글씨 크기 조정 */
+        .date-number {
+            font-size: 0.85em !important;
+            font-weight: 400 !important;
+        }
+        
+
+        
+        .weekly-header {
+            font-size: 0.7em !important;
+            padding: 10px 6px !important;
+        }
+        
+        .weekly-cell {
+            padding: 6px 4px !important;
+            min-height: 50px !important;
+        }
+        
+        .week-time {
+            font-size: 0.8em !important;
+        }
+        
+        /* 달력 크기를 원본과 비슷하게 조정 (950x470 → 1070x680) */
         .calendar-container {
             max-width: 1070px !important;
             width: 100% !important;
@@ -237,7 +326,6 @@
         
         .calendar-grid {
             min-height: 620px !important;
-            gap: 0px !important;
         }
         
         .calendar-day {
@@ -269,7 +357,9 @@
             font-weight: 500 !important;
         }
         
-        /* 스케줄 영역 - 고정영역 */
+
+        
+        /* 두번째줄 스케줄 영역 - 고정영역 */
         .schedule-area {
             width: 100% !important;
             background-color: transparent !important;
@@ -305,6 +395,25 @@
             color: #000000 !important;
         }
         
+        .weekly-header {
+            font-size: 0.75em !important;
+            padding: 10px 6px !important;
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .weekly-cell {
+            padding: 8px 6px !important;
+            min-height: 80px !important;
+        }
+        
+        .week-time {
+            font-size: 0.85em !important;
+            font-weight: 400 !important;
+        }
+        
         /* 강제 숨김 클래스 - 공간은 유지하되 내용만 숨김 (일반 달력용) */
         .force-hidden {
             visibility: hidden !important;
@@ -335,6 +444,7 @@
             pointer-events: none;
             z-index: 4; /* 과거 날짜 음영(z-index: 2)보다 높게 설정 */
         }
+
     </style>
     
     <!-- 공통 JavaScript 파일 링크 -->
@@ -358,7 +468,7 @@
                 <button id="nextBtn">다음</button>
             </div>
         </div>
-        <div class="calendar-grid" id="calendarGrid">
+        <div class="calendar-grid with-weekly" id="calendarGrid">
             <!-- 요일 헤더와 날짜가 여기에 동적으로 추가됩니다 -->
         </div>
     </div>
@@ -407,7 +517,7 @@
         function initializeCalendar() {
             const calendarGrid = document.getElementById('calendarGrid');
             
-            // 요일 헤더 생성
+            // 요일 헤더 생성 (7개)
             coreWEEKDAYS.forEach((day, index) => {
                 const weekdayCell = document.createElement('div');
                 weekdayCell.className = 'calendar-weekday';
@@ -416,6 +526,12 @@
                 weekdayCell.textContent = day;
                 calendarGrid.appendChild(weekdayCell);
             });
+
+            // 8번째 열: 주차 헤더
+            const weeklyHeader = document.createElement('div');
+            weeklyHeader.className = 'weekly-header';
+            weeklyHeader.innerHTML = 'WEEKLY<br/>근무현황';
+            calendarGrid.appendChild(weeklyHeader);
 
             updateCalendar();
         }
@@ -433,7 +549,8 @@
             console.log('현재 날짜:', currentDate.toISOString().split('T')[0]);
             
             const calendarGrid = document.getElementById('calendarGrid');
-            while (calendarGrid.children.length > 7) {
+            // 헤더 8개(요일 7개 + 주차 1개)는 유지하고 나머지만 제거
+            while (calendarGrid.children.length > 8) {
                 calendarGrid.removeChild(calendarGrid.lastChild);
             }
 
@@ -452,7 +569,7 @@
 
             updateSelectedCells();
             
-            // 자동으로 체크박스 상태 적용
+            // 달이 변경될 때마다 6주 표시 체크박스 상태를 다시 적용
                 setTimeout(toggleWeeksDisplay, 0);
         }
 
@@ -467,14 +584,17 @@
             
             document.getElementById('dateRange').textContent = coreFormatRange(displayStartDate, displayEndDate);
 
+            let weekCounter = 1;
+
             for (let i = 0; i < 42; i++) {
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + i);
 
-                const cell = document.createElement('div');1
+                const cell = document.createElement('div');
                 cell.className = 'calendar-day';
                 
-                // 1행,6행은 처음에는 disabled로 설정하지 않음 - toggleWeeksDisplay에서 처리
+                const isDisabled = i < 7 || i >= 35;
+                if (isDisabled) cell.classList.add('disabled');
                 
                 const dayOfWeek = date.getDay();
                 if (dayOfWeek === 6) cell.classList.add('saturday');
@@ -509,7 +629,7 @@
                 }
                 
                 cell.appendChild(dateNumber);
-
+                
                 // 일정 데이터 추가 - 고정영역으로 구조 변경
                 const scheduleData = getScheduleData(date);
                 const scheduleArea = document.createElement('div');
@@ -571,14 +691,45 @@
                     // 기존 클릭 이벤트 (드래그가 아닐 때만 실행)
                     cell.addEventListener('click', (e) => {
                         if (!isDragging) {
-                        clearSelectedDates();
-                        selectedDates.push(new Date(thisDate));
-                        updateSelectedCells();
-                        console.log('선택된 날짜:', selectedDates.map(d => d.toISOString().split('T')[0]));
+                            clearSelectedDates();
+                            selectedDates.push(new Date(thisDate));
+                            updateSelectedCells();
+                            console.log('선택된 날짜:', selectedDates.map(d => d.toISOString().split('T')[0]));
                         }
                     });
                 }
                 calendarGrid.appendChild(cell);
+
+                // 각 행의 끝(일요일 다음)에 주차 정보 추가
+                if ((i + 1) % 7 === 0) {
+                    const weeklyCell = document.createElement('div');
+                    weeklyCell.className = 'weekly-cell';
+                    
+                    // 모든 행에 대해 주차 셀 생성 (나중에 토글로 표시/숨김 처리)
+                    const weekNumber = document.createElement('div');
+                    weekNumber.className = 'week-number';
+                    weekNumber.textContent = `${weekCounter}주차`;
+                    
+                    const weekTime = document.createElement('div');
+                    weekTime.className = 'week-time';
+                    // 참고 이미지에 맞춘 샘플 데이터 (4주 모드에서 2~5주차 데이터 사용)
+                    const weekData = {
+                        1: '0시간 0분',      // 첫 주 (숨김)
+                        2: '14시간 17분',    // 1주차 (4주 모드)
+                        3: '12시간 0분',     // 2주차 (4주 모드)
+                        4: '0시간 0분',      // 3주차 (4주 모드)
+                        5: '0시간 0분',      // 4주차 (4주 모드)
+                        6: '0시간 0분'       // 마지막 주 (숨김)
+                    };
+                    weekTime.textContent = weekData[weekCounter] || '0시간 0분';
+                    
+                    weeklyCell.appendChild(weekNumber);
+                    weeklyCell.appendChild(weekTime);
+                    
+                    weekCounter++;
+                    
+                    calendarGrid.appendChild(weeklyCell);
+                }
             }
         }
 
@@ -597,8 +748,10 @@
             const firstDayOfWeek = ((date.getDay() + 6) % 7);
             date.setDate(date.getDate() - firstDayOfWeek);
 
-            // 항상 6주(42개) 셀 생성 - 표시/숨김은 CSS로 처리
-            const totalDays = 42;
+            // 항상 6주 생성 (6주 표시 여부는 CSS로 처리)
+            const totalDays = 6 * 7;
+            let weekCounter = 1;
+            
             for (let i = 0; i < totalDays; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'calendar-day';
@@ -698,15 +851,45 @@
                     // 기존 클릭 이벤트 (드래그가 아닐 때만 실행)
                     cell.addEventListener('click', (e) => {
                         if (!isDragging) {
-                        clearSelectedDates();
-                        selectedDates.push(new Date(thisDate));
-                        updateSelectedCells();
-                        console.log('선택된 날짜:', selectedDates.map(d => d.toISOString().split('T')[0]));
+                            clearSelectedDates();
+                            selectedDates.push(new Date(thisDate));
+                            updateSelectedCells();
+                            console.log('선택된 날짜:', selectedDates.map(d => d.toISOString().split('T')[0]));
                         }
                     });
                 }
 
                 calendarGrid.appendChild(cell);
+                
+                // 각 행의 끝(일요일 다음)에 주차 정보 추가
+                if ((i + 1) % 7 === 0) {
+                    const weeklyCell = document.createElement('div');
+                    weeklyCell.className = 'weekly-cell';
+                    
+                    const weekNumber = document.createElement('div');
+                    weekNumber.className = 'week-number';
+                    weekNumber.textContent = `${weekCounter}주차`;
+                    
+                    const weekTime = document.createElement('div');
+                    weekTime.className = 'week-time';
+                    // 참고 이미지에 맞춘 샘플 데이터
+                    const weekData = {
+                        1: '0시간 0분',      
+                        2: '14시간 17분',    
+                        3: '12시간 0분',     
+                        4: '0시간 0분',      
+                        5: '0시간 0분',      
+                        6: '0시간 0분'       
+                    };
+                    weekTime.textContent = weekData[weekCounter] || '0시간 0분';
+                    
+                    weeklyCell.appendChild(weekNumber);
+                    weeklyCell.appendChild(weekTime);
+                    calendarGrid.appendChild(weeklyCell);
+                    
+                    weekCounter++;
+                }
+                
                 date.setDate(date.getDate() + 1);
             }
         }
@@ -752,8 +935,8 @@
         function getHolidayData(date) {
             const monthDay = `${date.getMonth() + 1}/${date.getDate()}`;
             const holidayMap = {
-                '6/6': '현충일',
-                '6/3': '대통령 선거일'
+                '6/3': '대통령 선거일',
+                '6/6': '현충일'
             };
             return holidayMap[monthDay] || null;
         }
@@ -761,104 +944,11 @@
         function getDateFromCell(cell) {
             const dateNumberDiv = cell.querySelector('.date-number');
             if (dateNumberDiv) {
-                const dateText = dateNumberDiv.querySelector('span');
-                if (dateText) {
-                    const [m, d] = dateText.textContent.split('/');
-                    const y = currentDate.getFullYear();
-                    return new Date(y, parseInt(m, 10) - 1, parseInt(d, 10));
-                }
+                const [m, d] = dateNumberDiv.textContent.split('/');
+                const y = currentDate.getFullYear();
+                return new Date(y, parseInt(m, 10) - 1, parseInt(d, 10));
             }
             return null;
-        }
-
-        function toggleWeeksDisplay() {
-            const showFullWeeks = document.getElementById('showFullWeeksCheckbox').checked;
-            const calendarGrid = document.getElementById('calendarGrid');
-            const cells = calendarGrid.querySelectorAll('.calendar-day');
-            
-            console.log('toggleWeeksDisplay 호출 - 달력확장:', showFullWeeks);
-            console.log('찾은 셀 개수:', cells.length);
-            
-            if (coreIsAfterRef(currentDate)) {
-                // 4주 달력 모드 - 완전히 제거해서 여백 없애기
-                console.log('4주 달력 모드 - 1행, 6행 완전 제거');
-                
-                // 1행 (0-6 인덱스)
-                for (let i = 0; i < 7; i++) {
-                    if (cells[i]) {
-                        if (showFullWeeks) {
-                            cells[i].classList.remove('completely-hidden');
-                            cells[i].classList.add('week-extension'); // 달력확장 전용 음영
-                        } else {
-                            cells[i].classList.add('completely-hidden');
-                            cells[i].classList.remove('week-extension');
-                        }
-                    }
-                }
-                
-                // 6행 (35-41 인덱스)
-                for (let i = 35; i < 42; i++) {
-                    if (cells[i]) {
-                        if (showFullWeeks) {
-                            cells[i].classList.remove('completely-hidden');
-                            cells[i].classList.add('week-extension'); // 달력확장 전용 음영
-                        } else {
-                            cells[i].classList.add('completely-hidden');
-                            cells[i].classList.remove('week-extension');
-                        }
-                    }
-                }
-            } else {
-                // 일반 달력 모드 - 공간 유지하며 숨김
-                console.log('일반 달력 모드 - 현재 달 없는 행만 토글');
-                
-                if (showFullWeeks) {
-                    // 달력확장 체크 시 - 모든 행 표시하고 다른 달 영역에 스타일 적용
-                    cells.forEach(cell => {
-                        cell.classList.remove('force-hidden');
-                        // 다른 달 날짜에 달력확장 스타일 적용
-                        if (cell.classList.contains('other-month')) {
-                            cell.classList.add('week-extension');
-                        }
-                    });
-                } else {
-                    // 달력확장 해제 시 - 이번 달 날짜가 없는 행만 숨김
-                    const currentMonth = currentDate.getMonth();
-                    const currentYear = currentDate.getFullYear();
-                    
-                    // 모든 셀에서 week-extension 클래스 제거
-                    cells.forEach(cell => {
-                        cell.classList.remove('week-extension');
-                    });
-                    
-                    // 각 행별로 체크
-                    for (let row = 0; row < 6; row++) {
-                        let hasCurrentMonth = false;
-                        
-                        // 해당 행에 현재 월 날짜가 있는지 확인
-                        for (let col = 0; col < 7; col++) {
-                            const cellIndex = row * 7 + col;
-                            if (cells[cellIndex]) {
-                                const cellDate = getDateFromCell(cells[cellIndex]);
-                                if (cellDate && cellDate.getMonth() === currentMonth && cellDate.getFullYear() === currentYear) {
-                                    hasCurrentMonth = true;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // 현재 월이 없는 행은 숨김
-                        if (!hasCurrentMonth) {
-                            for (let col = 0; col < 7; col++) {
-                                const cellIndex = row * 7 + col;
-                                if (cells[cellIndex]) {
-                                    cells[cellIndex].classList.add('force-hidden');
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         function getDateRange(startDate, endDate) {
@@ -904,20 +994,21 @@
             popup.style.display = 'none';
         }
 
+
+
         function clearSelectedDates() {
             selectedDates = [];
         }
 
         function updateSelectedCells() {
+            // 달력 날짜 셀만 선택 처리 (주차 셀은 제외)
             document.querySelectorAll('.calendar-day').forEach(cell => {
                 cell.classList.remove('selected', 'multi-selected');
             });
             document.querySelectorAll('.calendar-day').forEach(cell => {
                 const dateNumberDiv = cell.querySelector('.date-number');
                 if (dateNumberDiv) {
-                    const dateText = dateNumberDiv.querySelector('span');
-                    if (dateText) {
-                        const [m, d] = dateText.textContent.split('/');
+                    const [m, d] = dateNumberDiv.textContent.split('/');
                     const y = currentDate.getFullYear();
                     const cellDate = new Date(y, parseInt(m, 10) - 1, parseInt(d, 10));
                     if (selectedDates.some(sel => isSameDay(sel, cellDate))) {
@@ -925,22 +1016,131 @@
                             cell.classList.add('multi-selected');
                         } else {
                             cell.classList.add('selected');
-                            }
                         }
                     }
                 }
             });
         }
 
+        function toggleWeeksDisplay() {
+            const showFullWeeks = document.getElementById('showFullWeeksCheckbox').checked;
+                const calendarGrid = document.getElementById('calendarGrid');
+                const cells = calendarGrid.querySelectorAll('.calendar-day');
+            const weeklyCells = calendarGrid.querySelectorAll('.weekly-cell');
 
+            console.log('toggleWeeksDisplay 호출 - 달력확장:', showFullWeeks);
+            console.log('찾은 날짜 셀 개수:', cells.length, '주차 셀 개수:', weeklyCells.length);
+
+            if (coreIsAfterRef(currentDate)) {
+                // 4주 달력: 1행, 6행 완전 제거 (공간까지 제거)
+                cells.forEach((cell, index) => {
+                    if (showFullWeeks) {
+                        cell.classList.remove('completely-hidden');
+                        if (index < 7 || index >= 35) {
+                            cell.classList.add('week-extension'); // 달력확장 전용 음영
+                        } else {
+                            cell.classList.remove('week-extension');
+                        }
+                    } else {
+                        if (index < 7 || index >= 35) {
+                            cell.classList.add('completely-hidden');
+                            cell.classList.remove('week-extension');
+                            console.log('4주 달력 날짜 셀 완전 숨김:', index);
+                        } else {
+                            cell.classList.remove('completely-hidden');
+                            cell.classList.remove('week-extension');
+                        }
+                    }
+                });
+
+                weeklyCells.forEach((weeklyCell, index) => {
+                    if (showFullWeeks) {
+                        weeklyCell.classList.remove('completely-hidden');
+            } else {
+                        if (index === 0 || index === 5) {
+                            weeklyCell.classList.add('completely-hidden');
+                            console.log('4주 달력 주차 셀 완전 숨김:', index);
+                        } else {
+                            weeklyCell.classList.remove('completely-hidden');
+                        }
+                    }
+                });
+            } else {
+                // 일반 달력: 이번 달이 아닌 날짜만 포함된 행 숨기기
+                const rowsToHide = [];
+                
+                // 각 행(7개씩)을 확인하여 이번 달 날짜가 포함되어 있는지 체크
+                for (let row = 0; row < 6; row++) {
+                    let hasCurrentMonth = false;
+                    for (let col = 0; col < 7; col++) {
+                        const cellIndex = row * 7 + col;
+                        const cell = cells[cellIndex];
+                        if (cell && !cell.classList.contains('other-month')) {
+                            hasCurrentMonth = true;
+                            break;
+                        }
+                    }
+                    if (!hasCurrentMonth) {
+                        rowsToHide.push(row);
+                    }
+                }
+
+                console.log('숨길 행들:', rowsToHide);
+
+                // 날짜 셀 표시/숨김 (42개)
+                cells.forEach((cell, index) => {
+                    const row = Math.floor(index / 7);
+                    if (showFullWeeks) {
+                        cell.classList.remove('force-hidden');
+                        // 다른 달 날짜에 달력확장 스타일 적용
+                        if (cell.classList.contains('other-month')) {
+                            cell.classList.add('week-extension');
+                        }
+                    } else {
+                        // week-extension 클래스 제거
+                        cell.classList.remove('week-extension');
+                        
+                        if (rowsToHide.includes(row)) {
+                            cell.classList.add('force-hidden');
+                            console.log('날짜 셀 숨김:', index, '행:', row, cell);
+                        } else {
+                            cell.classList.remove('force-hidden');
+                        }
+                    }
+                });
+
+                // 주차 셀 표시/숨김 (6개)
+                weeklyCells.forEach((weeklyCell, index) => {
+                    if (showFullWeeks) {
+                        weeklyCell.classList.remove('force-hidden');
+                    } else {
+                        if (rowsToHide.includes(index)) {
+                            weeklyCell.classList.add('force-hidden');
+                            console.log('주차 셀 숨김:', index);
+                        } else {
+                            weeklyCell.classList.remove('force-hidden');
+                        }
+                    }
+                });
+            }
+
+            updateDateRangeDisplay();
+        }
 
         function updateDateRangeDisplay() {
             const showFullWeeks = document.getElementById('showFullWeeksCheckbox').checked;
-            if (coreIsAfterRef(currentDate) && !showFullWeeks) {
+            if (coreIsAfterRef(currentDate)) {
+                if (!showFullWeeks) {
+                    const startDate = coreGet4WeekStart(currentDate);
+                    const displayStartDate = coreGet4WeekDispStart(startDate);
+                    const displayEndDate = coreGet4WeekDispEnd(displayStartDate);
+                    document.getElementById('dateRange').textContent = coreFormatRange(displayStartDate, displayEndDate);
+                } else {
                 const startDate = coreGet4WeekStart(currentDate);
                 const displayStartDate = coreGet4WeekDispStart(startDate);
                 const displayEndDate = coreGet4WeekDispEnd(displayStartDate);
                 document.getElementById('dateRange').textContent = coreFormatRange(displayStartDate, displayEndDate);
+                }
             }
         }
 

@@ -9,7 +9,7 @@ const BASE_DATE = new Date(2025, 8, 1); // 2025-09-01
 const NEXT_BLOCK_DATE = new Date(2025, 8, 29); // 2025-09-29 (BASE_DATE + 28일)
 
 // 요일 배열
-const WEEK_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+const WEEK_DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 const MINI_WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 /**

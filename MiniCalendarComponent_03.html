@@ -15,8 +15,8 @@
     <div class="mini-calendar-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #495057; cursor: pointer;">
-                <input type="checkbox" id="fixedWeeksCheckbox" checked style="margin: 0;">
-                <span>6주 고정</span>
+                <input type="checkbox" id="fixedWeeksCheckbox" style="margin: 0;">
+                <span>달력확장</span>
             </label>
             <button class="today-btn" id="todayBtn" title="오늘로 이동">오늘</button>
         </div>
@@ -66,7 +66,7 @@
             coreMINI_WEEKDAYS.forEach((d, i) => {
                 const wd = document.createElement('div');
                 wd.className = 'mini-calendar-weekday';
-                if (i === 5) wd.style.color = '#3b82f6';
+                if (i === 5) wd.style.color = '#ef4444';
                 if (i === 6) wd.style.color = '#ef4444';
                 wd.textContent = d;
                 grid.appendChild(wd);
@@ -234,6 +234,15 @@
         
         .mini-calendar-day.disabled .month-display {
             color: #999;
+        }
+        
+        /* 토요일/일요일인 매월 1일의 월 표시도 빨간색으로 처리 */
+        .mini-calendar-day.saturday .month-display {
+            color: #ef4444;
+        }
+        
+        .mini-calendar-day.sunday .month-display {
+            color: #ef4444;
         }
     </style>
 </body>

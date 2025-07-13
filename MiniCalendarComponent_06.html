@@ -122,6 +122,38 @@
         margin-left: 2px;
         transform-origin: center;
     }
+    
+    /* 매월 1일 월/일 표시 스타일 (4주 모드 전용) */
+    .month-display {
+        font-size: 0.8em;
+        color: #666;
+        font-weight: bold;
+    }
+    
+    .mini-calendar-day.today .month-display {
+        color: white;
+    }
+    
+    .mini-calendar-day.selected .month-display {
+        color: white;
+    }
+    
+    .mini-calendar-day.other-month .month-display {
+        color: #ccc;
+    }
+    
+    .mini-calendar-day.disabled .month-display {
+        color: #999;
+    }
+    
+    /* 토요일/일요일인 매월 1일의 월 표시도 빨간색으로 처리 */
+    .mini-calendar-day.saturday .month-display {
+        color: #ef4444;
+    }
+    
+    .mini-calendar-day.sunday .month-display {
+        color: #ef4444;
+    }
 </style>
     
     <div class="mini-calendar-container">
@@ -307,7 +339,12 @@
                         if (!dayData.isActive) {
                             // 첫 주(0~6), 마지막 주(35~41)는 비활성화(회색), 날짜는 표시
                             cell.classList.add('disabled');
-                            cell.textContent = d.getDate();
+                            // 비활성화된 날짜에서도 매월 1일은 월/일 표시 (4주 모드 전용)
+                            if (d.getDate() === 1) {
+                                cell.innerHTML = `<span class="month-display">${d.getMonth() + 1}</span>/${d.getDate()}`;
+                            } else {
+                                cell.textContent = d.getDate();
+                            }
                         } else {
                             // 가운데 4주만 활성화
                             if (d.getDay() === 6) cell.classList.add('saturday');
@@ -331,7 +368,12 @@
                                 if (dayData.needsRightBorder) cell.classList.add('month-right');
                             }
                             
-                            cell.textContent = d.getDate();
+                            // 4주 모드에서 모든 매월 1일에 월/일 형식으로 표시
+                            if (d.getDate() === 1) {
+                                cell.innerHTML = `<span class="month-display">${d.getMonth() + 1}</span>/${d.getDate()}`;
+                            } else {
+                                cell.textContent = d.getDate();
+                            }
                             
                             cell.addEventListener('click', () => {
                                 miniSelectedDate = new Date(d);

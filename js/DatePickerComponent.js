@@ -499,7 +499,7 @@ class DatePickerComponent {
             coreMINI_WEEKDAYS.forEach((d, i) => {
                 const wd = document.createElement('div');
                 wd.className = 'mini-calendar-weekday';
-                if (i === 5) wd.style.color = '#3b82f6';
+                if (i === 5) wd.style.color = '#ef4444';
                 if (i === 6) wd.style.color = '#ef4444';
                 wd.textContent = d;
                 grid.appendChild(wd);
@@ -891,8 +891,8 @@ class DatePickerComponent {
         weekDays.forEach((d, i) => {
             const wd = document.createElement('div');
             wd.className = 'mini-calendar-weekday';
-            if (i === 5) wd.style.color = '#3b82f6';
-            if (i === 6) wd.style.color = '#ef4444';
+                            if (i === 5) wd.style.color = '#ef4444';
+                if (i === 6) wd.style.color = '#ef4444';
             wd.textContent = d;
             grid.appendChild(wd);
         });
@@ -910,7 +910,7 @@ class DatePickerComponent {
         const start = new Date(firstDay);
         start.setDate(start.getDate() - firstDayOfWeek);
         
-        // 6주 고정으로 표시
+                        // 달력확장으로 표시
         const totalDays = 42;
         for (let i = 0; i < totalDays; i++) {
             const d = new Date(start);

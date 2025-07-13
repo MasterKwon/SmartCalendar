@@ -114,12 +114,18 @@ body {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto repeat(6, 110px);
     gap: 2px;
     background-color: #f3f4f6;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* 주차 표시가 필요한 달력용 8열 구조 */
+.calendar-grid.with-weekly {
+    grid-template-columns: repeat(8, 1fr);
 }
 
 .calendar-weekday {
@@ -133,8 +139,8 @@ body {
 }
 
 .calendar-weekday.saturday {
-    color: #3b82f6;
-    background: #eff6ff;
+    color: #ef4444;
+    background: #fef2f2;
 }
 
 .calendar-weekday.sunday {
@@ -179,7 +185,7 @@ body {
 }
 
 .calendar-day.saturday {
-    background-color: #eff6ff;
+    background-color: #fef2f2;
 }
 
 .calendar-day.sunday {
@@ -192,13 +198,13 @@ body {
 }
 
 .calendar-day.selected {
-    background-color: #dcfce7 !important;
-    border: 2px solid #10b981 !important;
+    background-color: transparent !important;
+    border-color: inherit !important;
 }
 
 .multi-selected {
-    background-color: #fef3c7 !important;
-    border: 2px solid #f59e0b !important;
+    background-color: transparent !important;
+    border-color: inherit !important;
 }
 
 .date-number {
@@ -228,8 +234,8 @@ body {
 }
 
 .month-view .calendar-day.selected {
-    background-color: #dcfce7 !important;
-    border: 2px solid #10b981 !important;
+    background-color: transparent !important;
+    border-color: inherit !important;
 }
 
 /* ===== 반응형 스타일 ===== */
@@ -265,6 +271,21 @@ body {
     .calendar-controls button {
         font-size: 0.95em;
         padding: 5px 8px;
+    }
+    
+    /* 모바일에서 주 합계 달력을 일반 7열 그리드로 변경 */
+    .calendar-grid.with-weekly {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    /* 모바일에서 주 합계 열 숨기기 */
+    .weekly-cell {
+        display: none !important;
+    }
+    
+    /* 모바일에서 주 합계 헤더 숨기기 */
+    .calendar-weekday:nth-child(8) {
+        display: none !important;
     }
     
     .calendar-day {

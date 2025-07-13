@@ -155,10 +155,19 @@ body {
 }
 
 .mini-calendar-day.saturday {
-    color: #3b82f6;
+    color: #ef4444;
 }
 
 .mini-calendar-day.sunday {
+    color: #ef4444;
+}
+
+/* 토요일/일요일인 매월 1일의 월 표시도 빨간색으로 처리 */
+.mini-calendar-day.saturday .month-display {
+    color: #ef4444;
+}
+
+.mini-calendar-day.sunday .month-display {
     color: #ef4444;
 }
 
