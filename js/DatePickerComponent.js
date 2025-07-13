@@ -12,8 +12,6 @@ class DatePickerComponent {
         this.endDate = null;
         this.selectedDate = null;
         this.currentDate = new Date();
-        this.leftDate = new Date(); // 듀얼 달력용 왼쪽 날짜
-        this.rightDate = new Date(); // 듀얼 달력용 오른쪽 날짜
         this.currentInputElement = null;
         this.overlay = null;
         this.picker = null;
@@ -46,20 +44,11 @@ class DatePickerComponent {
         this.overlay.className = 'datepicker-overlay';
         
         this.picker = document.createElement('div');
-        // 통합된 클래스 사용: popup-compact + dual-mode(범위 선택용)
-        this.picker.className = this.options.mode === 'range' ? 'mini-calendar-container popup-compact dual-mode' : 'mini-calendar-container popup-compact';
+        // 통합된 클래스 사용: popup-compact
+        this.picker.className = 'mini-calendar-container popup-compact';
         this.picker.style.position = 'relative';
         
-        if (this.options.mode === 'range') {
-            // 듀얼 달력용 날짜 초기화
-            this.leftDate = new Date();
-            this.rightDate = new Date(this.leftDate);
-            this.rightDate.setMonth(this.rightDate.getMonth() + 1);
-            
-            this.picker.innerHTML = this.createDualCalendarHTML();
-        } else {
-            this.picker.innerHTML = this.createSingleCalendarHTML();
-        }
+        this.picker.innerHTML = this.createSingleCalendarHTML();
         
         this.overlay.appendChild(this.picker);
         document.body.appendChild(this.overlay);
@@ -92,45 +81,7 @@ class DatePickerComponent {
         `;
     }
     
-    createDualCalendarHTML() {
-        return `
-            <button class="datepicker-close">×</button>
-            
-            <div class="calendar-side">
-                <div class="mini-calendar-header">
-                    <div class="mini-calendar-title">
-                        <span>2025.06</span>
-                    </div>
-                    <div class="mini-calendar-controls">
-                        <button class="nav-prev">‹</button>
-                        <button class="nav-next">›</button>
-                    </div>
-                </div>
-                <div class="mini-calendar-grid" data-side="left">
-                    <!-- 요일/날짜 동적 생성 -->
-                </div>
-            </div>
-            
-            <div class="calendar-side">
-                <div class="mini-calendar-header">
-                    <div class="mini-calendar-title">
-                        <span>2025.07</span>
-                    </div>
-                    <div class="mini-calendar-controls">
-                        <button class="nav-prev">‹</button>
-                        <button class="nav-next">›</button>
-                    </div>
-                </div>
-                <div class="mini-calendar-grid" data-side="right">
-                    <!-- 요일/날짜 동적 생성 -->
-                </div>
-            </div>
-            
-            <div class="datepicker-footer">
-                <div class="datepicker-selected"></div>
-            </div>
-        `;
-    }
+
     
 
     
@@ -146,11 +97,7 @@ class DatePickerComponent {
         };
         document.addEventListener('keydown', this.escKeyHandler);
         
-        if (this.options.mode === 'range') {
-            this.bindDualCalendarEvents();
-        } else {
-            this.bindSingleCalendarEvents();
-        }
+        this.bindSingleCalendarEvents();
         
         // 초기 년도/월 헤더 클릭 이벤트 바인딩
         this.rebindHeaderClickEvent();
@@ -173,23 +120,7 @@ class DatePickerComponent {
 
         // 년도/월 헤더 클릭 이벤트는 rebindHeaderClickEvent()에서 처리
     }
-    
-    bindDualCalendarEvents() {
-        // 네비게이션 버튼 이벤트 (간단한 월별 이동)
-        this.picker.addEventListener('click', (e) => {
-            if (e.target.classList.contains('nav-prev')) {
-                // 이전 월로 이동
-                this.leftDate.setMonth(this.leftDate.getMonth() - 1);
-                this.rightDate.setMonth(this.rightDate.getMonth() - 1);
-                this.render();
-            } else if (e.target.classList.contains('nav-next')) {
-                // 다음 월로 이동
-                this.leftDate.setMonth(this.leftDate.getMonth() + 1);
-                this.rightDate.setMonth(this.rightDate.getMonth() + 1);
-                this.render();
-            }
-        });
-    }
+
     
 
     
@@ -201,11 +132,6 @@ class DatePickerComponent {
     
     render() {
         if (!this.picker) return;
-        
-        if (this.options.mode === 'dual') {
-            this.renderDualCalendar();
-            return;
-        }
         
         // CalendarCore 로딩 확인
         if (typeof CalendarCore === 'undefined') {
@@ -435,11 +361,6 @@ class DatePickerComponent {
         
         const titleDiv = this.picker.querySelector('.mini-calendar-title span');
         const header = this.picker.querySelector('#calendarYearMonth');
-        
-        if (this.options.mode === 'dual') {
-            this.renderDualCalendar();
-            return;
-        }
         
         // CalendarCore 로딩 확인
         if (typeof CalendarCore === 'undefined') {
@@ -850,106 +771,7 @@ class DatePickerComponent {
         }
     }
     
-    renderDualCalendar() {
-        // 헤더 텍스트 업데이트 (기존 로직 적용)
-        this.updateDualCalendarHeaders();
-        
-        // 왼쪽 달력 렌더링
-        this.renderCalendarSide('left', this.leftDate);
-        
-        // 오른쪽 달력 렌더링
-        this.renderCalendarSide('right', this.rightDate);
-        
-        this.updateSelectedDisplay();
-    }
-    
-    updateDualCalendarHeaders() {
-        // 왼쪽 달력 헤더 업데이트
-        const leftTitleDiv = this.picker.querySelector('.calendar-side:first-child .mini-calendar-title');
-        this.updateCalendarHeader(leftTitleDiv, this.leftDate);
-        
-        // 오른쪽 달력 헤더 업데이트
-        const rightTitleDiv = this.picker.querySelector('.calendar-side:last-child .mini-calendar-title');
-        this.updateCalendarHeader(rightTitleDiv, this.rightDate);
-    }
-    
-    updateCalendarHeader(titleDiv, date) {
-        // 기간 선택 모드에서는 간단한 월별 표시
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        titleDiv.innerHTML = `<span>${year}.${String(month + 1).padStart(2, '0')}</span>`;
-    }
-    
-    renderCalendarSide(side, date) {
-        const grid = this.picker.querySelector(`[data-side="${side}"]`);
-        if (!grid) return;
-        
-        grid.innerHTML = '';
-        
-        // 요일 헤더
-        const weekDays = CalendarCore.MINI_WEEK_DAYS;
-        weekDays.forEach((d, i) => {
-            const wd = document.createElement('div');
-            wd.className = 'mini-calendar-weekday';
-                            if (i === 5) wd.style.color = '#ef4444';
-                if (i === 6) wd.style.color = '#ef4444';
-            wd.textContent = d;
-            grid.appendChild(wd);
-        });
-        
-        // 기간 선택 모드에서는 간단한 월별 달력 사용
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        
-        // 첫 번째 날의 요일 (월요일=0)
-        const firstDayOfWeek = (firstDay.getDay() + 6) % 7;
-        
-        // 시작 날짜 (이전 달의 마지막 주 포함)
-        const start = new Date(firstDay);
-        start.setDate(start.getDate() - firstDayOfWeek);
-        
-                        // 달력확장으로 표시
-        const totalDays = 42;
-        for (let i = 0; i < totalDays; i++) {
-            const d = new Date(start);
-            d.setDate(start.getDate() + i);
-            const cell = document.createElement('div');
-            cell.className = 'mini-calendar-day';
-            
-            if (d < firstDay || d > lastDay) {
-                cell.classList.add('other-month');
-            } else {
-                if (d.getDay() === 6) cell.classList.add('saturday');
-                if (d.getDay() === 0) cell.classList.add('sunday');
-                const today = new Date();
-                if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate()) {
-                    cell.classList.add('today');
-                }
-            }
-            
-            // 범위 선택 상태 표시
-            if (this.startDate && d.getTime() === this.startDate.getTime()) {
-                cell.classList.add('range-start');
-            }
-            if (this.endDate && d.getTime() === this.endDate.getTime()) {
-                cell.classList.add('range-end');
-            }
-            if (this.isDateInRange(d) && 
-                (!this.startDate || d.getTime() !== this.startDate.getTime()) && 
-                (!this.endDate || d.getTime() !== this.endDate.getTime())) {
-                cell.classList.add('in-range');
-            }
-            
-            cell.textContent = d.getDate();
-            cell.addEventListener('click', () => {
-                this.handleDateClick(new Date(d));
-            });
-            
-            grid.appendChild(cell);
-        }
-    }
+
     
     formatDate(date) {
         if (!date) return '';
@@ -990,7 +812,7 @@ class DatePickerComponent {
                 this.selectedDate = null;
             }
         } else {
-            // 기간 선택 모드
+            // 기간 선택 모드 (싱글 달력에서 시작일→종료일 순서로 선택)
             if (existingValue && existingValue !== inputElement.placeholder && existingValue.includes(' ~ ')) {
                 // YYYY-MM-DD ~ YYYY-MM-DD 형식 파싱
                 const rangeParts = existingValue.split(' ~ ');
@@ -1001,27 +823,19 @@ class DatePickerComponent {
                     if (startMatch && endMatch) {
                         this.startDate = new Date(parseInt(startMatch[1]), parseInt(startMatch[2]) - 1, parseInt(startMatch[3]));
                         this.endDate = new Date(parseInt(endMatch[1]), parseInt(endMatch[2]) - 1, parseInt(endMatch[3]));
-                        this.leftDate = new Date(this.startDate);
-                        this.rightDate = new Date(this.leftDate);
-                        this.rightDate.setMonth(this.rightDate.getMonth() + 1);
+                        this.currentDate = new Date(this.startDate);
                     } else {
-                        this.leftDate = new Date();
-                        this.rightDate = new Date(this.leftDate);
-                        this.rightDate.setMonth(this.rightDate.getMonth() + 1);
+                        this.currentDate = new Date();
                         this.startDate = null;
                         this.endDate = null;
                     }
                 } else {
-                    this.leftDate = new Date();
-                    this.rightDate = new Date(this.leftDate);
-                    this.rightDate.setMonth(this.rightDate.getMonth() + 1);
+                    this.currentDate = new Date();
                     this.startDate = null;
                     this.endDate = null;
                 }
             } else {
-                this.leftDate = new Date();
-                this.rightDate = new Date(this.leftDate);
-                this.rightDate.setMonth(this.rightDate.getMonth() + 1);
+                this.currentDate = new Date();
                 this.startDate = null;
                 this.endDate = null;
             }
@@ -1060,7 +874,7 @@ class DatePickerComponent {
         const pickerHeight = 280; // 실제 팝업 높이에 맞게 조정
         
         // 달력 너비 계산
-        const pickerWidth = this.options.mode === 'range' ? 430 : 260; // 듀얼/싱글 달력 너비
+        const pickerWidth = 260; // 싱글 달력 너비
         
         let finalTop = top;
         

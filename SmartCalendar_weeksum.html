@@ -445,6 +445,25 @@
             z-index: 4; /* 과거 날짜 음영(z-index: 2)보다 높게 설정 */
         }
 
+        /* 모바일에서 주 합계 관련 요소들 숨기기 */
+        @media (max-width: 600px) {
+            .calendar-grid.with-weekly {
+                grid-template-columns: repeat(7, 1fr) !important;
+            }
+            
+            .weekly-cell {
+                display: none !important;
+            }
+            
+            .weekly-header {
+                display: none !important;
+            }
+            
+            .calendar-weekday:nth-child(8) {
+                display: none !important;
+            }
+        }
+
     </style>
     
     <!-- 공통 JavaScript 파일 링크 -->
