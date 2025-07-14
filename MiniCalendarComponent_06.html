@@ -265,10 +265,19 @@
                 for (let i = 0; i < totalDays; i++) {
                     const d = new Date(startDate);
                     d.setDate(startDate.getDate() + startIndex + i);
+                    
+                    // 6주 모드에서 첫 주(0~6), 마지막 주(35~41)는 비활성화
+                    let isActive = true;
+                    if (weeksToShow === 6) {
+                        if (i < 7 || i >= 35) {
+                            isActive = false;
+                        }
+                    }
+                    
                     allDays.push({
                         date: d,
                         index: i,
-                        isActive: true
+                        isActive: isActive
                     });
                 }
                 
