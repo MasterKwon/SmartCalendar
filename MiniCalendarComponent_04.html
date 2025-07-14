@@ -344,6 +344,11 @@
                         cell.addEventListener('click', () => {
                             miniSelectedDate = new Date(d);
                             renderMiniCalendar();
+                            
+                            // 🔗 메인 페이지로 선택된 날짜 전달
+                            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                window.onMiniCalendarDateSelect(new Date(d));
+                            }
                         });
                     }
                     grid.appendChild(cell);
@@ -389,6 +394,11 @@
                         cell.addEventListener('click', () => {
                             miniSelectedDate = new Date(d);
                             renderMiniCalendar();
+                            
+                            // 🔗 메인 페이지로 선택된 날짜 전달
+                            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                window.onMiniCalendarDateSelect(new Date(d));
+                            }
                         });
                     }
                     grid.appendChild(cell);
@@ -463,6 +473,11 @@
             miniCurrentDate = new Date(today);
             miniSelectedDate = new Date(today);
             renderMiniCalendar();
+            
+            // 🔗 메인 페이지로 선택된 날짜 전달
+            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                window.onMiniCalendarDateSelect(new Date(today));
+            }
         };
         
                     // 달력확장 체크박스 변경 이벤트

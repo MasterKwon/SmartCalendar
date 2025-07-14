@@ -237,6 +237,8 @@
                 <li><strong>팝업 내 빠른선택:</strong> [오늘/이번주/이번달/4주] 버튼 자동 추가</li>
                 <li><strong>년/월 직접 이동:</strong> 달력 헤더 클릭으로 년도/월 선택기 팝업</li>
                 <li><strong>4주 모드 감지:</strong> 2025.09.01 이후 달력에서 4주 버튼 자동 활성화</li>
+                <li><strong>주차 표시 기능:</strong> showWeekNumbers 옵션으로 주차 번호 표시 (기본값: true)</li>
+                <li><strong>매월 1일 표시:</strong> 4주 모드에서 매월 1일을 "월/일" 형태로 표시</li>
                 <li><strong>고급 콜백:</strong> onQuickSelect, onManualSelect, onRangeComplete, onValidationError</li>
                 <li><strong>데이터 형식:</strong> YYYYMMDD (API 연동) + YYYY-MM-DD (화면 표시)</li>
                 <li><strong>완전 호환:</strong> 기존 코드 수정 없이 동작</li>
@@ -248,9 +250,17 @@
             <h2 class="section-title">🗓️ 단일 날짜 선택</h2>
             
             <div class="form-row">
-                <label class="form-label">기준일자</label>
-                <div class="date-input-container">
-                    <input type="text" class="date-input placeholder" id="birthDate" placeholder="YYYY-MM-DD" readonly onclick="openSinglePicker('birthDate')">
+                <div class="form-group">
+                    <label class="form-label">기준일자</label>
+                    <div class="date-input-container">
+                        <input type="text" class="date-input placeholder" id="birthDate" placeholder="YYYY-MM-DD" readonly onclick="openSinglePicker('birthDate')">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #495057; cursor: pointer;">
+                        <input type="checkbox" id="singleWeekNumbers" style="margin: 0;" checked>
+                        <span>주차 표시</span>
+                    </label>
                 </div>
             </div>
 
@@ -261,6 +271,7 @@
             <div class="code-example">
                 <pre>// 🔵 방법 1: 기존 createSingleDatePicker 방식 (완전 호환)
 const singlePicker = createSingleDatePicker({
+    showWeekNumbers: true,  // 주차 표시 옵션 (기본값: true)
     onApply: (selectedDate) => {
         console.log('선택된 날짜:', selectedDate);
         // YYYYMMDD 형식으로 변환: formatDate(selectedDate)
@@ -272,7 +283,8 @@ singlePicker.open(inputElement);
 openDatePicker('singleInputId'); // 기간선택 함수를 단일용으로 사용
 
 // ✅ 두 방식 모두 동일하게 작동하며 기존 코드와 완전 호환됩니다.
-// 📅 년/월 직접 이동: 달력 헤더(2025.06) 클릭으로 년도/월 선택기 팝업</pre>
+// 📅 년/월 직접 이동: 달력 헤더(2025.06) 클릭으로 년도/월 선택기 팝업
+// 📊 주차 표시: 체크박스로 ON/OFF 가능 (ISO 8601 기준)</pre>
             </div>
         </div>
         
@@ -289,6 +301,12 @@ openDatePicker('singleInputId'); // 기간선택 함수를 단일용으로 사�
                     <div class="date-input-container">
                         <input type="text" class="date-input placeholder" id="endDate" placeholder="YYYY-MM-DD" readonly onclick="openDatePickerWithCallbacks('end')">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #495057; cursor: pointer;">
+                        <input type="checkbox" id="rangeWeekNumbers" style="margin: 0;" checked>
+                        <span>주차 표시</span>
+                    </label>
                 </div>
                 <div class="form-row">
                     <button class="action-btn" onclick="clearRange()" style="padding: 8px 16px; border: 1px solid #e5e7eb; border-radius: 4px; background: #fff; color: #374151; cursor: pointer; font-size: 0.9em; margin-right: 10px;">초기화</button>
@@ -413,14 +431,35 @@ openDatePicker('singleDate'); // 단일 날짜 선택
         // 단일 날짜 선택 열기
         function openSinglePicker(inputId) {
             const input = document.getElementById(inputId);
-            if (singlePicker) {
-                singlePicker.open(input);
-            }
+            const showWeekNumbers = document.getElementById('singleWeekNumbers').checked;
+            
+            const picker = new DatePickerComponent({
+                mode: 'single',
+                showWeekNumbers: showWeekNumbers,
+                onApply: (selectedDate) => {
+                    input.value = formatDateForDisplay(selectedDate);
+                    input.classList.remove('placeholder');
+                    input.classList.add('has-value');
+                    
+                    // 결과 표시
+                    const result = document.getElementById('singleResult');
+                    result.innerHTML = `
+                        <strong>선택된 날짜:</strong> ${formatDateForDisplay(selectedDate)} (YYYYMMDD: ${formatDate(selectedDate)})
+                        <br>주차 표시: ${showWeekNumbers ? 'ON' : 'OFF'}
+                    `;
+                    
+                    console.log('📅 단일 날짜 선택:', selectedDate, '주차 표시:', showWeekNumbers);
+                }
+            });
+            picker.open(input);
         }
         
         // 🆕 고급 콜백 시스템을 적용한 기간 선택 열기 (데모용)
         function openDatePickerWithCallbacks(triggeredBy) {
+            const showWeekNumbers = document.getElementById('rangeWeekNumbers').checked;
+            
             openDatePicker('startDate', 'endDate', triggeredBy, {
+                showWeekNumbers: showWeekNumbers,
                 onQuickSelect: (startDate, endDate, rangeType, details) => {
                     console.log('🎯 [콜백] 빠른선택:', rangeType, details.formattedStart, '~', details.formattedEnd);
                     
@@ -442,6 +481,7 @@ openDatePicker('singleDate'); // 단일 날짜 선택
                 
                 onRangeComplete: (startDate, endDate, details) => {
                     console.log('✅ [콜백] 기간완성:', details.formattedStart, '~', details.formattedEnd, `(${details.durationDays}일)`);
+                    console.log('📊 [콜백] 주차 표시:', showWeekNumbers ? 'ON' : 'OFF');
                     
                     // 추가 로직 예시: 기간에 따른 경고나 추천
                     if (details.durationDays > 90) {
@@ -1133,6 +1173,8 @@ openDatePicker('singleDate'); // 단일 날짜 선택
                 console.error('❌ input 요소를 찾을 수 없습니다:', startInputId, endInputId);
             }
         }
+
+
     </script>
 </body>
 </html> 

@@ -378,6 +378,11 @@
                             cell.addEventListener('click', () => {
                                 miniSelectedDate = new Date(d);
                                 renderMiniCalendar();
+                                
+                                // 🔗 메인 페이지로 선택된 날짜 전달
+                                if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                    window.onMiniCalendarDateSelect(new Date(d));
+                                }
                             });
                         }
                         grid.appendChild(cell);
@@ -441,6 +446,11 @@
                             cell.addEventListener('click', () => {
                                 miniSelectedDate = new Date(d);
                                 renderMiniCalendar();
+                                
+                                // 🔗 메인 페이지로 선택된 날짜 전달
+                                if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                    window.onMiniCalendarDateSelect(new Date(d));
+                                }
                             });
                         }
                         grid.appendChild(cell);
@@ -471,87 +481,193 @@
                         currentYear: miniCurrentDate.getFullYear(),
                         currentMonth: miniCurrentDate.getMonth(),
                         onSelect: (year, month) => {
+                            console.log('🔍 YearMonthPicker onSelect 호출:', { year, month });
+                            console.log('🔍 현재 선택된 날짜:', miniSelectedDate);
+                            
+                            const oldSelectedDate = miniSelectedDate ? new Date(miniSelectedDate) : null;
+                            console.log('🔍 이전 선택된 날짜:', oldSelectedDate);
+                            
                             if (year !== null) {
                                 miniCurrentDate.setFullYear(year);
                             }
                             if (month !== null) {
                                 miniCurrentDate.setMonth(month);
                             }
+                            
+                            console.log('🔍 변경된 현재 날짜:', miniCurrentDate);
+                            
+                            // 🎯 월 변경 시 선택된 날짜 처리
+                            const today = new Date();
+                            const newYear = year !== null ? year : miniCurrentDate.getFullYear();
+                            const newMonth = month !== null ? month : miniCurrentDate.getMonth();
+                            
+                            console.log('🔍 새로 이동할 년/월:', { newYear, newMonth });
+                            
+                            // 🎯 같은 날짜 우선 선택 로직
+                            if (oldSelectedDate) {
+                                const oldDay = oldSelectedDate.getDate();
+                                const newDate = new Date(newYear, newMonth, oldDay);
+                                
+                                console.log('🔍 같은 날짜 시도:', { oldDay, newDate });
+                                
+                                // 4주 달력 모드인지 확인
+                                if (isAfterReferenceDate(newDate)) {
+                                    // 4주 달력 모드: 표시 범위 내에서 같은 날짜 확인
+                                    const startDate = CalendarCore.get4WeekStartDate(miniCurrentDate);
+                                    const displayStartDate = CalendarCore.get4WeekDisplayStartDate(startDate);
+                                    const displayEndDate = CalendarCore.get4WeekDisplayEndDate(displayStartDate);
+                                    
+                                    console.log('🔍 4주 달력 표시 범위:', { displayStartDate, displayEndDate, newDate });
+                                    
+                                    // 같은 날짜가 표시 범위에 있으면 선택, 없으면 중간 날짜 선택
+                                    if (newDate >= displayStartDate && newDate <= displayEndDate) {
+                                        miniSelectedDate = newDate;
+                                        console.log('✅ 같은 날짜 선택 (4주 달력):', newDate);
+                                    } else {
+                                        // 표시 범위의 중간 날짜 선택
+                                        const middleDate = new Date(displayStartDate);
+                                        middleDate.setDate(displayStartDate.getDate() + 14);
+                                        miniSelectedDate = middleDate;
+                                        console.log('✅ 중간 날짜 선택 (4주 달력):', middleDate);
+                                    }
+                                } else {
+                                    // 일반 달력 모드: 같은 날짜가 유효한지 확인
+                                    const year = miniCurrentDate.getFullYear();
+                                    const month = miniCurrentDate.getMonth();
+                                    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+                                    console.log('🟦 [DEBUG] 일반달력 oldDay:', oldDay, 'year:', year, 'month:', month + 1, 'lastDayOfMonth:', lastDayOfMonth);
+                                    if (oldDay <= lastDayOfMonth) {
+                                        miniSelectedDate = new Date(year, month, oldDay);
+                                        console.log('✅ 일반달력: 같은 일 선택', miniSelectedDate);
+                                    } else {
+                                        if (oldDay <= 15) {
+                                            miniSelectedDate = new Date(year, month, 1);
+                                            console.log('✅ 일반달력: 시작 날짜 선택', miniSelectedDate);
+                                        } else {
+                                            miniSelectedDate = new Date(year, month, lastDayOfMonth);
+                                            console.log('✅ 일반달력: 마지막 날짜 선택', miniSelectedDate);
+                                        }
+                                    }
+                                }
+                            } else {
+                                // 이전 선택된 날짜가 없으면 오늘 또는 1일 선택
+                                const newDate = new Date(newYear, newMonth, 1);
+                                
+                                if (isAfterReferenceDate(newDate)) {
+                                    // 4주 달력 모드
+                                    const startDate = CalendarCore.get4WeekStartDate(newDate);
+                                    const displayStartDate = CalendarCore.get4WeekDisplayStartDate(startDate);
+                                    const displayEndDate = CalendarCore.get4WeekDisplayEndDate(displayStartDate);
+                                    
+                                    if (today >= displayStartDate && today <= displayEndDate) {
+                                        miniSelectedDate = new Date(today);
+                                    } else {
+                                        const middleDate = new Date(displayStartDate);
+                                        middleDate.setDate(displayStartDate.getDate() + 14);
+                                        miniSelectedDate = middleDate;
+                                    }
+                                } else {
+                                    // 일반 달력 모드
+                                    if (today.getFullYear() === newYear && today.getMonth() === newMonth) {
+                                        miniSelectedDate = new Date(today);
+                                    } else {
+                                        miniSelectedDate = new Date(newYear, newMonth, 1);
+                                    }
+                                }
+                            }
+                            
                             renderMiniCalendar();
+                            
+                            // 🔗 메인 페이지로 선택된 날짜 전달
+                            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                window.onMiniCalendarDateSelect(new Date(miniSelectedDate));
+                            }
                         }
                     });
                 });
                 ymTrigger.setAttribute('data-click-bound', 'true');
             }
         }
-        document.getElementById('miniPrevBtn').onclick = () => {
-            // 기존 하드코딩 (주석 처리)
-            // const base = new Date(2025, 8, 1); // 2025-09-01
-            // const nextBlock = new Date(base);
-            // nextBlock.setDate(base.getDate() + 28); // 2025-09-29
-            
-            // CalendarCore.js의 상수 사용
-            const base = coreREF_DATE;
-            const nextBlock = coreNEXT_BLOCK_DATE;
-            // 기존 중복 로직 (주석 처리)
-            // if (miniCurrentDate < base) {
-            //     miniCurrentDate.setMonth(miniCurrentDate.getMonth() - 1);
-            // } else if (miniCurrentDate >= base && miniCurrentDate < nextBlock) {
-            //     // 9월 1일이면 4주 빼서 8월로 이동 (월요일로 보정)
-            //     const day = miniCurrentDate.getDay();
-            //     const diffToMonday = (day === 0 ? -6 : 1 - day);
-            //     let monday = new Date(miniCurrentDate);
-            //     monday.setDate(miniCurrentDate.getDate() + diffToMonday);
-            //     monday.setDate(monday.getDate() - 28);
-            //     miniCurrentDate = monday;
-            // } else if (miniCurrentDate < nextBlock) {
-            //     miniCurrentDate = new Date(base);
-            // } else {
-            //     const day = miniCurrentDate.getDay();
-            //     const diffToMonday = (day === 0 ? -6 : 1 - day);
-            //     let monday = new Date(miniCurrentDate);
-            //     monday.setDate(miniCurrentDate.getDate() + diffToMonday);
-            //     monday.setDate(monday.getDate() - 28);
-            //     miniCurrentDate = monday;
-            // }
-            
-            // CalendarCore.js의 함수 사용
+
+function handle4WeekSelection(newDate, oldDay) {
+    // 4주 달력 모드: 표시 범위 내에서 같은 '일'이 있으면 그 날짜, 없으면 중간 날짜
+    const startDate = CalendarCore.get4WeekStartDate(miniCurrentDate);
+    const displayStartDate = CalendarCore.get4WeekDisplayStartDate(startDate);
+    const displayEndDate = CalendarCore.get4WeekDisplayEndDate(displayStartDate);
+    let days = [];
+    let d = new Date(displayStartDate.getFullYear(), displayStartDate.getMonth(), displayStartDate.getDate());
+    const end = new Date(displayEndDate.getFullYear(), displayEndDate.getMonth(), displayEndDate.getDate());
+    while (d <= end) {
+        days.push(new Date(d));
+        d.setDate(d.getDate() + 1);
+    }
+    console.log('🟦 [DEBUG] days 배열:', days.map(day => day.toISOString().slice(0,10)));
+    console.log('🟦 [DEBUG] oldDay:', oldDay);
+    // 같은 '일'이 있는 날짜 찾기
+    const sameDay = days.find(day => day.getDate() === oldDay);
+    console.log('🟦 [DEBUG] sameDay:', sameDay);
+    if (sameDay) {
+        miniSelectedDate = sameDay;
+        console.log('✅ 같은 일 선택 (4주 달력):', sameDay);
+    } else {
+        miniSelectedDate = days[Math.floor(days.length / 2)];
+        console.log('✅ 중간 날짜 선택 (4주 달력):', miniSelectedDate);
+    }
+    console.log('🟦 [DEBUG] 최종 선택된 날짜:', miniSelectedDate);
+}
+
+function moveCalendar(direction) {
+    const oldSelectedDate = miniSelectedDate ? new Date(miniSelectedDate) : null;
+    const oldDay = oldSelectedDate ? oldSelectedDate.getDate() : 1;
+    if (direction === 'prev') {
             miniCurrentDate = CalendarCore.moveToPreviousDate(miniCurrentDate);
+    } else if (direction === 'next') {
+        miniCurrentDate = CalendarCore.moveToNextDate(miniCurrentDate);
+    }
+    const newDate = new Date(miniCurrentDate.getFullYear(), miniCurrentDate.getMonth(), oldDay);
+    console.log('🟦 [DEBUG] 이동', direction, { miniCurrentDate, oldSelectedDate, oldDay, newDate, is4Week: isAfterReferenceDate(newDate) });
+    if (isAfterReferenceDate(newDate)) {
+        handle4WeekSelection(newDate, oldDay);
+    } else {
+        // 일반 달력 모드: 같은 날짜가 유효한지 확인
+        const year = miniCurrentDate.getFullYear();
+        const month = miniCurrentDate.getMonth();
+        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+        console.log('🟦 [DEBUG] 일반달력 oldDay:', oldDay, 'year:', year, 'month:', month + 1, 'lastDayOfMonth:', lastDayOfMonth);
+        if (oldDay <= lastDayOfMonth) {
+            miniSelectedDate = new Date(year, month, oldDay);
+            console.log('✅ 일반달력: 같은 일 선택', miniSelectedDate);
+        } else {
+            // oldDay가 해당 월의 마지막 날보다 크면, 15일 기준으로 시작/끝 날짜 선택
+            if (oldDay <= 15) {
+                miniSelectedDate = new Date(year, month, 1);
+                console.log('✅ 일반달력: 시작 날짜 선택', miniSelectedDate);
+            } else {
+                miniSelectedDate = new Date(year, month, lastDayOfMonth);
+                console.log('✅ 일반달력: 마지막 날짜 선택', miniSelectedDate);
+            }
+        }
+    }
             renderMiniCalendar();
-        };
-        document.getElementById('miniNextBtn').onclick = () => {
-            // 기존 하드코딩 (주석 처리)
-            // const base = new Date(2025, 8, 1); // 2025-09-01
-            // const nextBlock = new Date(base);
-            // nextBlock.setDate(base.getDate() + 28); // 2025-09-29
-            
-            // CalendarCore.js의 상수 사용
-            const base = coreREF_DATE;
-            const nextBlock = coreNEXT_BLOCK_DATE;
-            // 기존 중복 로직 (주석 처리)
-            // if (miniCurrentDate < base) {
-            //     miniCurrentDate.setMonth(miniCurrentDate.getMonth() + 1);
-            // } else if (miniCurrentDate >= base && miniCurrentDate < nextBlock) {
-            //     miniCurrentDate = new Date(nextBlock);
-            // } else {
-            //     const day = miniCurrentDate.getDay();
-            //     const diffToMonday = (day === 0 ? -6 : 1 - day);
-            //     let monday = new Date(miniCurrentDate);
-            //     monday.setDate(miniCurrentDate.getDate() + diffToMonday);
-            //     monday.setDate(monday.getDate() + 28);
-            //     miniCurrentDate = monday;
-            // }
-            
-            // CalendarCore.js의 함수 사용
-            miniCurrentDate = CalendarCore.moveToNextDate(miniCurrentDate);
-            renderMiniCalendar();
-        };
+    // 🔗 메인 페이지로 선택된 날짜 전달
+    if (typeof window.onMiniCalendarDateSelect === 'function') {
+        window.onMiniCalendarDateSelect(new Date(miniSelectedDate));
+    }
+}
+
+document.getElementById('miniPrevBtn').onclick = () => moveCalendar('prev');
+document.getElementById('miniNextBtn').onclick = () => moveCalendar('next');
         // Today 버튼 클릭 이벤트
         document.getElementById('todayBtn').onclick = () => {
             const today = new Date();
             miniCurrentDate = new Date(today);
             miniSelectedDate = new Date(today);
             renderMiniCalendar();
+            
+            // 🔗 메인 페이지로 선택된 날짜 전달
+            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                window.onMiniCalendarDateSelect(new Date(today));
+            }
         };
         
                     // 달력확장 체크박스 변경 이벤트

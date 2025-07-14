@@ -124,6 +124,11 @@
                         cell.addEventListener('click', () => {
                             miniSelectedDate = new Date(d);
                             renderMiniCalendar();
+                            
+                            // 🔗 메인 페이지로 선택된 날짜 전달
+                            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                window.onMiniCalendarDateSelect(new Date(d));
+                            }
                         });
                         
                         // 월별 배경색 구분 (홀수/짝수 월로 구분)
@@ -175,6 +180,11 @@
                         cell.addEventListener('click', () => {
                             miniSelectedDate = new Date(d);
                             renderMiniCalendar();
+                            
+                            // 🔗 메인 페이지로 선택된 날짜 전달
+                            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                                window.onMiniCalendarDateSelect(new Date(d));
+                            }
                         });
                     }
                     grid.appendChild(cell);
@@ -197,6 +207,11 @@
             miniCurrentDate = new Date(today);
             miniSelectedDate = new Date(today);
             renderMiniCalendar();
+            
+            // 🔗 메인 페이지로 선택된 날짜 전달
+            if (typeof window.onMiniCalendarDateSelect === 'function') {
+                window.onMiniCalendarDateSelect(new Date(today));
+            }
         };
         
             document.getElementById('fixedWeeksCheckbox').addEventListener('change', () => {

@@ -3,6 +3,7 @@ class DatePickerComponent {
         this.options = {
             mode: 'single', // 'single' 또는 'range'
             format: 'YYYYMMDD',
+            showWeekNumbers: true, // 주차 표시 옵션 (기본값: true)
             onSelect: null,
             onApply: null,
             ...options
@@ -35,6 +36,37 @@ class DatePickerComponent {
             /* ===== CSS 통합 완료 ===== */
             /* 모든 스타일이 common.css로 통합되었습니다. */
             /* 팝업 달력은 .mini-calendar-container.popup-compact 클래스를 사용합니다. */
+            
+            /* ===== 향상된 년/월 선택기 스타일 ===== */
+            .calendar-ym-trigger {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+            }
+            
+            .calendar-ym-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 18px;
+                height: 18px;
+                background: #3b82f6;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(59,130,246,0.15);
+                transition: background 0.18s, transform 0.18s;
+                margin-left: 2px;
+                transform-origin: center;
+            }
+            
+            .calendar-ym-trigger:hover .calendar-ym-icon {
+                background: #2563eb;
+                transform: scale(1.05);
+            }
+            
+            .calendar-ym-trigger:active .calendar-ym-icon {
+                transform: scale(0.95);
+            }
         `;
         document.head.appendChild(style);
     }
@@ -62,7 +94,14 @@ class DatePickerComponent {
             
             <div class="mini-calendar-header">
                 <div class="mini-calendar-title">
-                    <span id="calendarYearMonth">2025.06</span>
+                    <span class="calendar-ym-trigger" id="calendarYmTrigger">
+                        <span class="calendar-ym-icon">
+                            <svg width="12" height="12" fill="none" viewBox="0 0 12 12">
+                                <path d="M4 5l2 2 2-2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span id="calendarYearMonth">2025.06</span>
+                    </span>
                 </div>
                 <div class="mini-calendar-controls">
                     <button id="prevBtn">‹</button>
@@ -146,15 +185,23 @@ class DatePickerComponent {
     }
 
     rebindHeaderClickEvent() {
-        const titleElement = this.picker.querySelector('.mini-calendar-title');
-        if (titleElement && !titleElement.hasAttribute('data-click-bound')) {
-            titleElement.classList.add('clickable');
-            titleElement.addEventListener('click', (e) => {
+        const triggerElement = this.picker.querySelector('.calendar-ym-trigger');
+        if (triggerElement && !triggerElement.hasAttribute('data-click-bound')) {
+            triggerElement.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleYearMonthPicker();
             });
-            titleElement.setAttribute('data-click-bound', 'true');
+            triggerElement.setAttribute('data-click-bound', 'true');
         }
+    }
+
+    // ===== 주차 계산 함수 (ISO 8601 기준) =====
+    getWeekNumber(date) {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
     }
 
     // ===== 년도/월 빠른 선택 기능 =====
@@ -412,26 +459,44 @@ class DatePickerComponent {
         const grid = this.picker.querySelector('#calendarGrid');
         if (!grid) return;
         
-            grid.innerHTML = '';
-            
+        grid.innerHTML = '';
+        
         const coreMINI_WEEKDAYS = CalendarCore.MINI_WEEK_DAYS;
         
+        // 주차 표시 옵션이 활성화된 경우에만 그리드 클래스 추가
+        if (this.options.showWeekNumbers) {
+            grid.classList.add('with-week-numbers');
+        } else {
+            grid.classList.remove('with-week-numbers');
+        }
+        
+        // 주차 헤더 추가 (주차 표시 옵션이 활성화된 경우에만)
+        if (this.options.showWeekNumbers) {
+            const weekHeader = document.createElement('div');
+            weekHeader.className = 'mini-calendar-weekday';
+            weekHeader.textContent = 'W';
+            weekHeader.style.fontSize = '0.9em';
+            weekHeader.style.fontWeight = '600';
+            weekHeader.style.color = '#6b7280';
+            grid.appendChild(weekHeader);
+        }
+        
         // 요일 헤더 생성
-            coreMINI_WEEKDAYS.forEach((d, i) => {
-                const wd = document.createElement('div');
-                wd.className = 'mini-calendar-weekday';
-                if (i === 5) wd.style.color = '#ef4444';
-                if (i === 6) wd.style.color = '#ef4444';
-                wd.textContent = d;
-                grid.appendChild(wd);
-            });
+        coreMINI_WEEKDAYS.forEach((d, i) => {
+            const wd = document.createElement('div');
+            wd.className = 'mini-calendar-weekday';
+            if (i === 5) wd.style.color = '#ef4444';
+            if (i === 6) wd.style.color = '#ef4444';
+            wd.textContent = d;
+            grid.appendChild(wd);
+        });
             
         if (is4WeekMode) {
-            // 4주 모드 렌더링 + 월별 경계선 기능 (미니달력 4번 로직 통합)
+            // 4주 모드 렌더링 - MiniCalendarComponent_06 스타일 적용
             
             // 그리드에 월별 경계선 클래스 추가 (CSS gap 조정용)
             grid.classList.add('has-month-borders');
-            console.log('🔍 4주 모드: 월별 경계선 활성화');
+            console.log('🔍 4주 모드: 외곽 라인 활성화');
             
             // 모든 날짜 데이터를 수집
             const allDays = [];
@@ -445,157 +510,77 @@ class DatePickerComponent {
                 });
             }
             
-            // 활성화된 날짜들만 필터링하여 월별 그룹 생성
+            // 활성화된 날짜들에만 전체 활성 영역의 외곽 라인만 적용
             const activeDays = allDays.filter(day => day.isActive);
-            const monthGroups = {};
             
             activeDays.forEach(day => {
-                const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
-                if (!monthGroups[monthKey]) {
-                    monthGroups[monthKey] = [];
-                }
-                monthGroups[monthKey].push(day);
-            });
-            
-            // 월별 날짜 수 계산하여 주도권 결정
-            let dominantMonth = null;
-            let maxCount = 0;
-            let earliestMonth = null;
-            
-            Object.keys(monthGroups).forEach(monthKey => {
-                const group = monthGroups[monthKey];
+                // 모든 날짜에 기본 그룹 스타일 적용
+                day.hasGroupStyle = true;
                 
-                if (group.length > maxCount) {
-                    maxCount = group.length;
-                    dominantMonth = monthKey;
-                    earliestMonth = monthKey;
-                } else if (group.length === maxCount) {
-                    // 동점인 경우 더 이른 월을 선택
-                    if (!earliestMonth || monthKey < earliestMonth) {
-                        dominantMonth = monthKey;
-                        earliestMonth = monthKey;
-                    }
-                }
-            });
-            
-            console.log('📊 월별 그룹:', monthGroups);
-            console.log('👑 주도권 월:', dominantMonth, '(', maxCount, '일)');
-            
-            // 주도권을 가진 월의 날짜에만 경계선 적용
-            Object.keys(monthGroups).forEach(monthKey => {
-                const group = monthGroups[monthKey];
-                const isDominant = (monthKey === dominantMonth);
+                // 전체 활성 영역의 외곽 라인만 적용 (월 변경 경계선 제거)
+                const gridIndex = day.index;
+                const dayOfWeek = (day.date.getDay() + 6) % 7; // 월요일=0
                 
-                group.forEach((day) => {
-                    // 모든 날짜에 기본 그룹 스타일 적용
-                    day.hasGroupStyle = true;
-                    
-                    // 주도권을 가진 월에만 경계선 적용
-                    if (isDominant) {
-                        const gridIndex = day.index;
-                        const dayOfWeek = (day.date.getDay() + 6) % 7; // 월요일=0
-                        
-                        // 월 그룹의 경계선 설정
-                        day.needsTopBorder = false;
-                        day.needsBottomBorder = false;
-                        day.needsLeftBorder = false;
-                        day.needsRightBorder = false;
-                        
-                        const activeStart = 7;
-                        const activeEnd = 35;
-                        
-                        // 위쪽 경계선 체크
-                        const upperIndex = gridIndex - 7;
-                        if (upperIndex < activeStart || upperIndex >= activeEnd) {
-                            day.needsTopBorder = true;
-                        } else {
-                            const upperDay = allDays.find(d => d.index === upperIndex);
-                            if (upperDay && upperDay.isActive && upperDay.date.getMonth() !== day.date.getMonth()) {
-                                day.needsTopBorder = true;
-                            }
-                        }
-                        
-                        // 아래쪽 경계선 체크
-                        const lowerIndex = gridIndex + 7;
-                        if (lowerIndex >= activeStart && lowerIndex < activeEnd) {
-                            const lowerDay = allDays.find(d => d.index === lowerIndex);
-                            if (lowerDay && lowerDay.isActive && lowerDay.date.getMonth() !== day.date.getMonth()) {
-                                day.needsBottomBorder = true;
-                            }
-                        } else if (lowerIndex >= activeEnd) {
-                            day.needsBottomBorder = true;
-                        }
-                        
-                        // 왼쪽 경계선 체크
-                        if (dayOfWeek === 0) {
-                            day.needsLeftBorder = true;
-                        } else {
-                            const leftIndex = gridIndex - 1;
-                            const leftDay = allDays.find(d => d.index === leftIndex);
-                            if (leftDay && leftDay.isActive && leftDay.date.getMonth() !== day.date.getMonth()) {
-                                day.needsLeftBorder = true;
-                            }
-                        }
-                        
-                        // 오른쪽 경계선 체크
-                        if (dayOfWeek === 6) {
-                            day.needsRightBorder = true;
-                        } else {
-                            const rightIndex = gridIndex + 1;
-                            const rightDay = allDays.find(d => d.index === rightIndex);
-                            if (rightDay && rightDay.isActive && rightDay.date.getMonth() !== day.date.getMonth()) {
-                                day.needsRightBorder = true;
-                            }
-                        }
-                    } else {
-                        // 비주도권 월은 월별 경계선 없음
-                        day.needsTopBorder = false;
-                        day.needsBottomBorder = false;
-                        day.needsLeftBorder = false;
-                        day.needsRightBorder = false;
-                    }
-                    
-                    // 모든 날짜에 전체 활성 영역의 외곽 라인 추가 적용
-                    const gridIndex = day.index;
-                    const dayOfWeek = (day.date.getDay() + 6) % 7; // 월요일=0
-                    
-                    // 활성 영역의 경계 설정
-                    const topBoundary = [7, 13];
-                    const bottomBoundary = [28, 34];
-                    
-                    // 맨 위쪽 행에 상단 라인 추가
-                    if (gridIndex >= topBoundary[0] && gridIndex <= topBoundary[1]) {
-                        day.needsTopBorder = true;
-                    }
-                    
-                    // 맨 아래쪽 행에 하단 라인 추가
-                    if (gridIndex >= bottomBoundary[0] && gridIndex <= bottomBoundary[1]) {
-                        day.needsBottomBorder = true;
-                    }
-                    
-                    // 맨 왼쪽 열 (월요일 위치)에 좌측 라인 추가
-                    if (dayOfWeek === 0) {
-                        day.needsLeftBorder = true;
-                    }
-                    
-                    // 맨 오른쪽 열 (일요일 위치)에 우측 라인 추가
-                    if (dayOfWeek === 6) {
-                        day.needsRightBorder = true;
-                    }
-                });
+                // 활성 영역의 경계 설정
+                const topBoundary = [7, 13];
+                const bottomBoundary = [28, 34];
+                
+                // 맨 위쪽 행에 상단 라인 추가
+                if (gridIndex >= topBoundary[0] && gridIndex <= topBoundary[1]) {
+                    day.needsTopBorder = true;
+                }
+                
+                // 맨 아래쪽 행에 하단 라인 추가
+                if (gridIndex >= bottomBoundary[0] && gridIndex <= bottomBoundary[1]) {
+                    day.needsBottomBorder = true;
+                }
+                
+                // 맨 왼쪽 열 (월요일 위치)에 좌측 라인 추가
+                if (dayOfWeek === 0) {
+                    day.needsLeftBorder = true;
+                }
+                
+                // 맨 오른쪽 열 (일요일 위치)에 우측 라인 추가
+                if (dayOfWeek === 6) {
+                    day.needsRightBorder = true;
+                }
+                
+                // 초기화 (월 변경 경계선은 제거)
+                day.needsTopBorder = day.needsTopBorder || false;
+                day.needsBottomBorder = day.needsBottomBorder || false;
+                day.needsLeftBorder = day.needsLeftBorder || false;
+                day.needsRightBorder = day.needsRightBorder || false;
             });
             
-            // 실제 DOM 생성 (기존 로직 + 월별 경계선 스타일 적용)
+            // 실제 DOM 생성
             for (let i = 0; i < allDays.length; i++) {
                 const dayData = allDays[i];
                 const d = dayData.date;
+                
+                // 주차 표시 옵션이 활성화된 경우, 각 주의 시작 부분에 주차 셀 추가
+                if (this.options.showWeekNumbers && i % 7 === 0) {
+                    const weekCell = document.createElement('div');
+                    weekCell.className = 'mini-calendar-week';
+                    weekCell.textContent = this.getWeekNumber(d);
+                    weekCell.style.fontSize = '0.7em';
+                    weekCell.style.color = '#666';
+                    weekCell.style.fontWeight = 'bold';
+                    grid.appendChild(weekCell);
+                }
+                
                 const cell = document.createElement('div');
                 cell.className = 'mini-calendar-day';
                 
                 if (!dayData.isActive) {
                     // 첫 주(0~6), 마지막 주(35~41)는 비활성화
                     cell.classList.add('disabled');
-                    cell.textContent = d.getDate();
+                    
+                    // 비활성화된 날짜에서도 매월 1일은 월/일 표시
+                    if (d.getDate() === 1) {
+                        cell.innerHTML = `<span class="month-display">${d.getMonth() + 1}</span>/${d.getDate()}`;
+                    } else {
+                        cell.textContent = d.getDate();
+                    }
                 } else {
                     // 가운데 4주만 활성화 (기존 로직 유지)
                     
@@ -621,27 +606,22 @@ class DatePickerComponent {
                         }
                     }
                     
-                    // 월별 경계선 스타일 적용
+                    // 외곽 라인 스타일 적용
                     if (dayData.hasGroupStyle) {
                         cell.classList.add('month-group');
                         
-                        let borderCount = 0;
-                        if (dayData.needsTopBorder) { cell.classList.add('month-top'); borderCount++; }
-                        if (dayData.needsBottomBorder) { cell.classList.add('month-bottom'); borderCount++; }
-                        if (dayData.needsLeftBorder) { cell.classList.add('month-left'); borderCount++; }
-                        if (dayData.needsRightBorder) { cell.classList.add('month-right'); borderCount++; }
-                        
-                        if (borderCount > 0 && i < 20) { // 처음 20개 셀만 로그 출력
-                            console.log(`🔗 ${d.getDate()}일: 경계선 ${borderCount}개 적용`, {
-                                top: dayData.needsTopBorder,
-                                bottom: dayData.needsBottomBorder,
-                                left: dayData.needsLeftBorder,
-                                right: dayData.needsRightBorder
-                            });
-                        }
+                        if (dayData.needsTopBorder) cell.classList.add('month-top');
+                        if (dayData.needsBottomBorder) cell.classList.add('month-bottom');
+                        if (dayData.needsLeftBorder) cell.classList.add('month-left');
+                        if (dayData.needsRightBorder) cell.classList.add('month-right');
                     }
                         
-                    cell.textContent = d.getDate();
+                    // 4주 모드에서 매월 1일에 월/일 형식으로 표시
+                    if (d.getDate() === 1) {
+                        cell.innerHTML = `<span class="month-display">${d.getMonth() + 1}</span>/${d.getDate()}`;
+                    } else {
+                        cell.textContent = d.getDate();
+                    }
                     
                     // 클릭 이벤트 추가
                     cell.addEventListener('click', () => this.handleDateClick(d));
@@ -671,6 +651,18 @@ class DatePickerComponent {
             for (let i=0; i<totalDays; i++) {
                 const d = new Date(start);
                 d.setDate(start.getDate() + i);
+                
+                // 주차 표시 옵션이 활성화된 경우, 각 주의 시작 부분에 주차 셀 추가
+                if (this.options.showWeekNumbers && i % 7 === 0) {
+                    const weekCell = document.createElement('div');
+                    weekCell.className = 'mini-calendar-week';
+                    weekCell.textContent = this.getWeekNumber(d);
+                    weekCell.style.fontSize = '0.7em';
+                    weekCell.style.color = '#666';
+                    weekCell.style.fontWeight = 'bold';
+                    grid.appendChild(weekCell);
+                }
+                
                 const cell = document.createElement('div');
                 cell.className = 'mini-calendar-day';
                 
@@ -873,8 +865,8 @@ class DatePickerComponent {
         const viewportWidth = window.innerWidth;
         const pickerHeight = 280; // 실제 팝업 높이에 맞게 조정
         
-        // 달력 너비 계산
-        const pickerWidth = 260; // 싱글 달력 너비
+        // 달력 너비 계산 (주차 표시 및 4주 모드 텍스트를 위해 20% 증가)
+        const pickerWidth = 267; // 싱글 달력 너비 (281px → 267px, 5% 더 감소)
         
         let finalTop = top;
         

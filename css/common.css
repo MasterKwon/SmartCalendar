@@ -247,7 +247,7 @@ body {
 
 /* ===== 팝업 달력 전용 스타일 (DatePickerComponent용) ===== */
 .mini-calendar-container.popup-compact {
-    max-width: 260px;
+    max-width: 267px;
     padding: 12px 10px 10px 10px;
     border-radius: 6px;
 }
@@ -827,7 +827,69 @@ body {
     }
     
     .mini-calendar-container.popup-compact {
-        max-width: 240px;
+        max-width: 246px;
         padding: 10px 8px 8px 8px;
     }
+} 
+
+/* ===== 매월 1일 월/일 표시 스타일 (4주 모드 전용) ===== */
+.month-display {
+    font-size: 0.8em;
+    color: #666;
+    font-weight: bold;
+}
+
+.mini-calendar-day.today .month-display {
+    color: white;
+}
+
+.mini-calendar-day.selected .month-display {
+    color: white;
+}
+
+.mini-calendar-day.other-month .month-display {
+    color: #ccc;
+}
+
+.mini-calendar-day.disabled .month-display {
+    color: #999;
+}
+
+/* 토요일/일요일인 매월 1일의 월 표시도 빨간색으로 처리 */
+.mini-calendar-day.saturday .month-display {
+    color: #ef4444;
+}
+
+.mini-calendar-day.sunday .month-display {
+    color: #ef4444;
+}
+
+/* 선택된 날짜나 오늘 날짜의 경우 월 표시도 하얀색으로 처리 */
+.mini-calendar-day.saturday.selected .month-display,
+.mini-calendar-day.sunday.selected .month-display,
+.mini-calendar-day.saturday.today .month-display,
+.mini-calendar-day.sunday.today .month-display {
+    color: white;
+} 
+
+/* 팝업 캘린더에서 주차 표시용 스타일 */
+.mini-calendar-container.popup-compact .mini-calendar-grid.with-week-numbers {
+    grid-template-columns: 25px repeat(7, 1fr);
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-week {
+    font-size: 0.6em;
+    color: #6b7280;
+    font-weight: 600;
+    padding: 4px 2px;
+    min-height: 20px;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+}
+
+.mini-calendar-container.popup-compact .mini-calendar-weekday:first-child {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    color: #6b7280;
+    font-weight: 600;
 } 

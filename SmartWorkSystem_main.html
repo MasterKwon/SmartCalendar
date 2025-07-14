@@ -667,6 +667,42 @@
                         });
                 }
                 
+                // 📅 날짜 형식화 함수
+                function formatDate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+                    const weekDay = weekDays[date.getDay()];
+                    
+                    return `${year}.${month}.${day} (${weekDay})`;
+                }
+                
+                // 📅 메인 컨텐츠 영역의 날짜 업데이트 함수
+                function updateDailyStatusDate(selectedDate) {
+                    const dailyDateElement = document.querySelector('.daily-date');
+                    if (dailyDateElement) {
+                        const formattedDate = formatDate(selectedDate);
+                        dailyDateElement.textContent = formattedDate;
+                        
+                        console.log('📅 DAILY 근무현황 날짜 업데이트:', formattedDate);
+                        
+                        // 선택된 날짜에 따라 추가 데이터 로드/업데이트 가능
+                        // 예: loadDailyWorkData(selectedDate);
+                    }
+                }
+                
+                // 🔗 미니달력과의 통신을 위한 전역 콜백 함수
+                window.onMiniCalendarDateSelect = function(selectedDate) {
+                    console.log('🔗 미니달력에서 날짜 선택됨:', selectedDate);
+                    updateDailyStatusDate(selectedDate);
+                };
+                
+                // 📅 오늘 날짜로 초기화
+                function initializeTodayDate() {
+                    const today = new Date();
+                    updateDailyStatusDate(today);
+                }
 
                 
                 function getCalendarDisplayName(filename) {
@@ -681,9 +717,13 @@
 
                 // Load when DOM is ready
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', loadMiniCalendar);
+                    document.addEventListener('DOMContentLoaded', () => {
+                        loadMiniCalendar();
+                        initializeTodayDate();
+                    });
                 } else {
                     loadMiniCalendar();
+                    initializeTodayDate();
                 }
             </script>
 
