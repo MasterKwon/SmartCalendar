@@ -124,6 +124,73 @@
         .card-link:hover {
             background: #1f2937;
         }
+
+        /* 팝업 스타일 */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: white;
+            border-radius: 8px;
+            width: 98%;
+            height: 95%;
+            max-width: 1400px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .popup-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .popup-close:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .popup-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            border-radius: 0 0 8px 8px;
+        }
         
         .footer {
             background: #f9fafb;
@@ -191,6 +258,21 @@
                         <div style="color:#64748b;font-size:0.85em;margin-bottom:4px;">파일명: SmartCalendar_weeksum.html</div>
                         <div style="color:#64748b;font-size:0.85em;margin-bottom:8px;">최근 날짜 이동/선택 로직 개선: 말일 자동 선택 등 일관성 강화</div>
                         <a href="SmartCalendar_weeksum.html" class="card-link">시연하기 →</a>
+                    </div>
+                    <div class="calendar-card">
+                        <h3 class="card-title">스마트 캘린더 (독립 실행)</h3>
+                        <p class="card-description">완전히 독립적인 단일 HTML 파일로 모든 기능이 포함된 깔끔한 달력입니다.</p>
+                        <ul class="card-features">
+                            <li>단일 HTML 파일로 완전 독립 실행</li>
+                            <li>월별 / 4주 단위 자동 전환</li>
+                            <li>달력확장 기능 (회색 음영처리)</li>
+                            <li>공휴일 표시 (YYYYMMDD 형식)</li>
+                            <li>토요일/일요일 빨간색 강조</li>
+                            <li>최적화된 UI 및 반응형 디자인</li>
+                        </ul>
+                        <div style="color:#64748b;font-size:0.85em;margin-bottom:4px;">파일명: SmartCalendar_view.html</div>
+                        <div style="color:#64748b;font-size:0.85em;margin-bottom:8px;">외부 의존성 제거로 어디서든 독립 실행 가능</div>
+                        <a href="#" onclick="openCalendarPopup('SmartCalendar_view.html')" class="card-link">팝업으로 시연하기 →</a>
                     </div>
                 </div>
             </div>
@@ -311,5 +393,63 @@
             <p>© 2025 4주단위 달력 시연 | 그로브소프트</p>
         </div>
     </div>
+
+    <!-- 팝업 오버레이 -->
+    <div id="calendarPopup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-title">스마트 캘린더 (독립 실행)</div>
+                <button class="popup-close" onclick="closeCalendarPopup()">&times;</button>
+            </div>
+            <iframe id="calendarIframe" class="popup-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 팝업 열기 함수
+        function openCalendarPopup(filename) {
+            const popup = document.getElementById('calendarPopup');
+            const iframe = document.getElementById('calendarIframe');
+            
+            iframe.src = filename;
+            popup.style.display = 'flex';
+            
+            // iframe 로드 완료 후 크기 조정
+            iframe.onload = function() {
+                // 팝업 내에서 달력이 최적화되도록 메시지 전송
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'popup-mode',
+                        height: window.innerHeight * 0.9
+                    }, '*');
+                } catch (e) {
+                    // 크로스 오리진 에러 무시
+                }
+            };
+            
+            // ESC 키로 팝업 닫기
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeCalendarPopup();
+                }
+            });
+        }
+
+        // 팝업 닫기 함수
+        function closeCalendarPopup() {
+            const popup = document.getElementById('calendarPopup');
+            const iframe = document.getElementById('calendarIframe');
+            
+            popup.style.display = 'none';
+            iframe.src = '';
+        }
+
+        // 팝업 외부 클릭시 닫기
+        document.getElementById('calendarPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCalendarPopup();
+            }
+        });
+    </script>
 </body>
 </html> 

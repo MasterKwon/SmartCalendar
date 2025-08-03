@@ -406,6 +406,21 @@ class DatePickerComponent {
     updateCalendarOnly() {
         if (!this.picker) return;
         
+        // 🆕 체크박스 상태 실시간 확인
+        const rangeWeekNumbersCheckbox = document.getElementById('rangeWeekNumbers');
+        const singleWeekNumbersCheckbox = document.getElementById('singleWeekNumbers');
+        
+        // 현재 활성화된 체크박스 상태 확인
+        let currentShowWeekNumbers = this.options.showWeekNumbers;
+        if (rangeWeekNumbersCheckbox && rangeWeekNumbersCheckbox.checked !== undefined) {
+            currentShowWeekNumbers = rangeWeekNumbersCheckbox.checked;
+        } else if (singleWeekNumbersCheckbox && singleWeekNumbersCheckbox.checked !== undefined) {
+            currentShowWeekNumbers = singleWeekNumbersCheckbox.checked;
+        }
+        
+        // 옵션 업데이트
+        this.options.showWeekNumbers = currentShowWeekNumbers;
+        
         const titleDiv = this.picker.querySelector('.mini-calendar-title span');
         const header = this.picker.querySelector('#calendarYearMonth');
         

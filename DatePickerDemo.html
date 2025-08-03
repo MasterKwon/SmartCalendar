@@ -376,7 +376,7 @@ openDatePicker('singleDate'); // 단일 날짜 선택
     <script src="js/CalendarCore.js"></script>
     <script src="js/DatePickerComponent.js"></script>
     <script>
-        let singlePicker, datePicker;
+        let singlePicker, rangeDatePicker;
 
         document.addEventListener('DOMContentLoaded', () => {
             // 단일 날짜 선택 컴포넌트 인스턴스
@@ -392,10 +392,12 @@ openDatePicker('singleDate'); // 단일 날짜 선택
                 }
             });
             
-            // 기간 선택용 날짜 선택 컴포넌트 인스턴스 (자동 적용)
-            datePicker = createSingleDatePicker({
+
+
+            // 기간 선택용 별도 인스턴스 생성
+            rangeDatePicker = createSingleDatePicker({
                 onApply: (selectedDate) => {
-                    const currentInput = datePicker.currentInputElement;
+                    const currentInput = rangeDatePicker.currentInputElement;
                     if (currentInput) {
                         const dateStr = formatDateForDisplay(selectedDate);
                         currentInput.value = dateStr;
@@ -426,6 +428,32 @@ openDatePicker('singleDate'); // 단일 날짜 선택
                     }
                 }
             });
+
+            // 🆕 체크박스 이벤트 리스너 추가
+            const rangeWeekNumbersCheckbox = document.getElementById('rangeWeekNumbers');
+            const singleWeekNumbersCheckbox = document.getElementById('singleWeekNumbers');
+            
+            // 기간 선택용 주차 표시 체크박스
+            if (rangeWeekNumbersCheckbox) {
+                rangeWeekNumbersCheckbox.addEventListener('change', () => {
+                    console.log('🔄 기간 선택 주차 표시 변경:', rangeWeekNumbersCheckbox.checked ? 'ON' : 'OFF');
+                    // 현재 열린 달력이 있다면 다시 렌더링
+                    if (rangeDatePicker && rangeDatePicker.picker && rangeDatePicker.picker.style.display !== 'none') {
+                        rangeDatePicker.updateCalendarOnly();
+                    }
+                });
+            }
+            
+            // 단일 날짜 선택용 주차 표시 체크박스
+            if (singleWeekNumbersCheckbox) {
+                singleWeekNumbersCheckbox.addEventListener('change', () => {
+                    console.log('🔄 단일 선택 주차 표시 변경:', singleWeekNumbersCheckbox.checked ? 'ON' : 'OFF');
+                    // 현재 열린 달력이 있다면 다시 렌더링
+                    if (singlePicker && singlePicker.picker && singlePicker.picker.style.display !== 'none') {
+                        singlePicker.updateCalendarOnly();
+                    }
+                });
+            }
         });
 
         // 단일 날짜 선택 열기
@@ -558,9 +586,9 @@ openDatePicker('singleDate'); // 단일 날짜 선택
                 const targetInput = triggeredBy === 'start' ? startInput : endInput;
                 console.log('⚙️ 임시:', triggeredBy === 'start' ? '시작일' : '종료일', '기준으로 팝업 열기');
                 
-                if (datePicker) {
+                if (rangeDatePicker) {
                     // 팝업 열기
-                    datePicker.open(targetInput);
+                    rangeDatePicker.open(targetInput);
                     
                     // 빠른기간선택 버튼 추가 (충분한 지연시간)
                     setTimeout(() => {
@@ -1141,8 +1169,8 @@ openDatePicker('singleDate'); // 단일 날짜 선택
             }
             
             // 팝업 닫기
-            if (datePicker) {
-                datePicker.close();
+            if (rangeDatePicker) {
+                rangeDatePicker.close();
             }
             
             console.log('🎯 빠른기간선택 완료:', rangeType, formatDate(startDate), '~', formatDate(endDate));

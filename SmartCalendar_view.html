@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월별 근무현황 관리</title>
+    
+    <!-- 모든 CSS 스타일 포함 -->
+    <style>
+        /* ===== 기본 리셋 및 공통 스타일 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            min-height: 100vh;
+        }
+        
+        /* ===== 달력 컨테이너 ===== */
+        .calendar-container {
+            max-width: 1070px;
+            width: 100%;
+            margin: 10px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .calendar-header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .calendar-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #374151;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+            text-align: left;
+        }
+        
+        .date-range {
+            font-size: 1.1em;
+            color: #6b7280;
+            padding: 4px 12px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        /* ===== 달력 컨트롤 ===== */
+        .calendar-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .calendar-controls button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .calendar-controls button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .calendar-controls button#todayBtn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+        }
+        
+        .calendar-controls button#todayBtn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        
+        /* ===== 달력 그리드 ===== */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: 40px repeat(6, 80px);
+            gap: 0px;
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-height: 480px;
+        }
+        
+        /* ===== 요일 헤더 ===== */
+        .calendar-weekday {
+            background: #ffffff;
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: 400;
+            color: #6b7280;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.75em;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+
+        
+        /* ===== 날짜 셀 ===== */
+        .calendar-day {
+            background: white;
+            min-height: 80px;
+            padding: 3px;
+            position: relative;
+            border: 1.5px solid #e5e7eb;
+            cursor: pointer;
+            color: #374151;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        
+        .calendar-day:hover {
+            background-color: #f9fafb;
+        }
+        
+
+        
+
+        
+        .calendar-day.today {
+            background-color: #ffffff;
+            border: 1px solid #f3f4f6;
+        }
+        
+        .calendar-day.today .date-number {
+            background-color: #9ca3af;
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 3px 6px;
+            display: inline-block;
+            margin: 2px;
+        }
+        
+
+        
+        /* 토요일, 일요일 날짜 색상 */
+        .calendar-day.saturday .date-number,
+        .calendar-day.sunday .date-number {
+            color: #dc2626;
+        }
+        
+        /* 날짜 번호 */
+        .date-number {
+            font-size: 0.8em;
+            font-weight: 400;
+            align-self: flex-start;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #1f2937;
+            z-index: 3;
+            position: relative;
+        }
+        
+        /* 휴일 표시 */
+        .holiday-indicator {
+            font-size: 0.65em;
+            color: #dc2626;
+            font-weight: 500;
+        }
+        
+
+        
+        /* 월 뷰 스타일 */
+        .month-view .calendar-day {
+            min-height: 80px;
+        }
+        
+        /* 4주 모드와 일반 모드의 음영 처리 통일 */
+        .calendar-day.week-extension {
+            background-color: rgba(156, 163, 175, 0.15) !important;
+            border: 1.5px solid #e5e7eb !important;
+        }
+        
+        /* 일반 달력 모드에서 음영 처리 오버플로우 방지 */
+        .month-view .calendar-day.week-extension {
+            overflow: hidden;
+        }
+        
+
+        
+        /* 숨김 클래스들 */
+        .force-hidden {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .completely-hidden {
+            display: none;
+        }
+        
+
+        
+        /* 달력확장 시 폰트 희미하게 */
+        .calendar-day.week-extension .date-number {
+            opacity: 0.6;
+        }
+        
+        .calendar-day.week-extension .holiday-indicator {
+            opacity: 0.6;
+        }
+        
+
+        
+
+
+
+    </style>
+    
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <div class="calendar-title">월별계획</div>
+            <div class="date-range" id="dateRange"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9em; color: #6b7280; cursor: pointer;">
+                <input type="checkbox" id="showFullWeeksCheckbox" style="margin: 0;">
+                <span>달력확장</span>
+            </label>
+            <div class="calendar-controls" style="margin: 0;">
+                <button id="prevBtn">이전</button>
+                <button id="todayBtn">오늘</button>
+                <button id="referenceBtn" style="display: none;">기준일자</button>
+                <button id="nextBtn">다음</button>
+            </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- 요일 헤더와 날짜가 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+
+
+    <script>
+        // ===== 스마트 캘린더 - 독립 실행 버전 =====
+        // 
+        // 주요 기능:
+        // 1. 월별 달력 모드 (9월 1일 이전): 월 단위로 이동
+        // 2. 4주 달력 모드 (9월 1일 이후): 4주 단위로 이동
+        // 3. 달력확장 기능: 이전/다음 달 날짜 표시 및 음영 처리
+        // 4. 공휴일 표시: YYYYMMDD 형식의 JSON 데이터 사용
+        // 5. 토요일/일요일 빨간색 강조
+        // 6. 오늘 날짜 하이라이트
+        //
+        // 사용법:
+        // - 이 파일을 팝업으로 열어서 사용
+        // - 달력확장 체크박스로 이전/다음 달 날짜 표시 여부 제어
+        // - 이전/다음 버튼으로 달력 이동
+        // - 오늘 버튼으로 현재 날짜로 이동
+        
+        // ===== 공통 상수 정의 =====
+        const REFERENCE_DATE = new Date(2025, 8, 1); // 2025년 9월 1일 - 모드 전환 기준일
+        const WEEK_DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']; // 요일 배열
+
+        /**
+         * 기준일 이후인지 확인하는 함수
+         * @param {Date} date - 확인할 날짜
+         * @returns {boolean} 기준일 이후면 true (4주 모드로 전환)
+         */
+        function isAfterReferenceDate(date) {
+            return date >= REFERENCE_DATE;
+        }
+
+        /**
+         * 이전 날짜로 이동하는 로직
+         * @param {Date} currentDate - 현재 날짜
+         * @returns {Date} 이동할 날짜
+         * 
+         * 이동 규칙:
+         * - 9월 1일 이전: 월 단위로 이동 (예: 8월 → 7월)
+         * - 9월 1일 이후: 4주 단위로 이동 (예: 9월 1일 → 8월 4일)
+         */
+        function moveToPreviousDate(currentDate) {
+            if (currentDate < REFERENCE_DATE) {
+                // 월별 달력 모드: 월 단위 이동
+                const newDate = new Date(currentDate);
+                newDate.setMonth(currentDate.getMonth() - 1);
+                return newDate;
+            } else {
+                // 4주 달력 모드: 4주 단위 이동
+                const monday = getMondayOfWeek(currentDate);
+                monday.setDate(monday.getDate() - 28);
+                return monday;
+            }
+        }
+
+        /**
+         * 다음 날짜로 이동하는 로직
+         * @param {Date} currentDate - 현재 날짜
+         * @returns {Date} 이동할 날짜
+         * 
+         * 이동 규칙:
+         * - 9월 1일 이전: 월 단위로 이동 (예: 7월 → 8월)
+         * - 8월에서 9월로 이동 시: 9월 1일로 고정 (모드 전환)
+         * - 9월 1일 이후: 4주 단위로 이동 (예: 9월 1일 → 9월 29일)
+         */
+        function moveToNextDate(currentDate) {
+            if (currentDate < REFERENCE_DATE) {
+                // 월별 달력 모드: 월 단위 이동
+                const newDate = new Date(currentDate);
+                
+                // 8월에서 9월로 이동하는 경우: 9월 1일로 고정 (4주 모드 전환)
+                if (currentDate.getFullYear() === 2025 && currentDate.getMonth() === 7) {
+                    return new Date(REFERENCE_DATE); // 2025-09-01
+                }
+                
+                newDate.setMonth(currentDate.getMonth() + 1);
+                return newDate;
+            } else {
+                // 4주 달력 모드: 4주 단위 이동
+                const monday = getMondayOfWeek(currentDate);
+                monday.setDate(monday.getDate() + 28);
+                return monday;
+            }
+        }
+
+        /**
+         * 월요일 날짜를 구하는 함수
+         * @param {Date} date - 기준 날짜
+         * @returns {Date} 해당 주의 월요일
+         */
+        function getMondayOfWeek(date) {
+            const monday = new Date(date);
+            const day = date.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            monday.setDate(date.getDate() + diffToMonday);
+            return monday;
+        }
+
+        /**
+         * 4주 달력의 시작 날짜를 계산하는 함수
+         * @param {Date} currentDate - 현재 날짜
+         * @returns {Date} 4주 달력의 시작 날짜
+         * 
+         * 계산 규칙:
+         * - 9월 1일~28일 범위: 8월 25일(월)로 고정 (첫 주 제외를 위한 시작점)
+         * - 그 외: 현재 날짜가 속한 주의 월요일에서 1주 전으로 설정
+         */
+        function get4WeekStartDate(currentDate) {
+            if (currentDate >= REFERENCE_DATE && currentDate < new Date(2025, 8, 29)) {
+                // 9월 1일~28일 범위: 8월 25일(월)로 고정
+                return new Date(2025, 7, 25);
+            } else {
+                // 그 외: 현재 날짜가 속한 주의 월요일에서 1주 전으로 설정
+                const start = new Date(currentDate);
+                const day = start.getDay();
+                const diffToMonday = (day === 0 ? -6 : 1 - day);
+                start.setDate(start.getDate() + diffToMonday - 7);
+                return new Date(start);
+            }
+        }
+
+        /**
+         * 4주 달력의 표시 시작 날짜를 계산하는 함수 (첫 주 제외)
+         * @param {Date} startDate - 4주 달력의 시작 날짜
+         * @returns {Date} 표시할 시작 날짜
+         */
+        function get4WeekDisplayStartDate(startDate) {
+            const displayStartDate = new Date(startDate);
+            displayStartDate.setDate(startDate.getDate() + 7); // 첫 주 제외
+            return displayStartDate;
+        }
+
+        /**
+         * 4주 달력의 표시 종료 날짜를 계산하는 함수
+         * @param {Date} displayStartDate - 표시 시작 날짜
+         * @returns {Date} 표시할 종료 날짜
+         */
+        function get4WeekDisplayEndDate(displayStartDate) {
+            const displayEndDate = new Date(displayStartDate);
+            displayEndDate.setDate(displayStartDate.getDate() + 27); // 4주
+            return displayEndDate;
+        }
+
+        /**
+         * 날짜 범위 텍스트를 생성하는 함수
+         * @param {Date} startDate - 시작 날짜
+         * @param {Date} endDate - 종료 날짜
+         * @returns {string} 날짜 범위 텍스트
+         */
+        function formatDateRange(startDate, endDate) {
+            const startStr = `${startDate.getFullYear()}.${String(startDate.getMonth() + 1).padStart(2, '0')}.${String(startDate.getDate()).padStart(2, '0')}`;
+            const endStr = `${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}.${String(endDate.getDate()).padStart(2, '0')}`;
+            return `${startStr} ~ ${endStr}`;
+        }
+
+        /**
+         * 월 표시 텍스트를 생성하는 함수 (한국어)
+         * @param {Date} date - 날짜
+         * @returns {string} 월 표시 텍스트
+         */
+        function formatMonthDisplayKorean(date) {
+            return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, '0')}월`;
+        }
+
+        // ===== 전역 변수 정의 =====
+        // 공통 로직 변수들을 안전하게 할당 (prefix 사용으로 충돌 방지)
+        const coreREF_DATE = REFERENCE_DATE;
+        const coreWEEKDAYS = WEEK_DAYS;
+        const coreIsAfterRef = isAfterReferenceDate;
+        const coreMovePrev = moveToPreviousDate;
+        const coreMoveNext = moveToNextDate;
+        const coreGet4WeekStart = get4WeekStartDate;
+        const coreGet4WeekDispStart = get4WeekDisplayStartDate;
+        const coreGet4WeekDispEnd = get4WeekDisplayEndDate;
+        const coreFormatRange = formatDateRange;
+        const coreFormatMonthKor = formatMonthDisplayKorean;
+
+        // 현재 표시할 날짜 (기본값: 오늘)
+        let currentDate = new Date();
+
+        /**
+         * 달력 초기화 함수
+         * - 요일 헤더 생성 (MON, TUE, WED, THU, FRI, SAT, SUN)
+         * - 토요일/일요일 스타일 적용
+         * - 달력 업데이트 호출
+         */
+        function initializeCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            
+            // 요일 헤더 생성 (MON, TUE, WED, THU, FRI, SAT, SUN)
+            coreWEEKDAYS.forEach((day, index) => {
+                const weekdayCell = document.createElement('div');
+                weekdayCell.className = 'calendar-weekday';
+                
+                // 토요일/일요일 스타일 적용
+                if (index === 5) weekdayCell.classList.add('saturday');
+                else if (index === 6) weekdayCell.classList.add('sunday');
+                
+                weekdayCell.textContent = day;
+                calendarGrid.appendChild(weekdayCell);
+            });
+
+            // 달력 업데이트
+            updateCalendar();
+        }
+
+        /**
+         * 달력 업데이트 함수
+         * - 현재 날짜에 따라 월별/4주 모드 결정
+         * - 기존 날짜 셀 제거
+         * - 버튼 텍스트 업데이트
+         * - 달력 확장 상태 적용
+         */
+        function updateCalendar() {
+            // 4주 모드 범위 설정 (9월 1일 ~ 9월 28일)
+            const base = new Date(2025, 8, 1);
+            const nextBlock = new Date(base);
+            nextBlock.setDate(base.getDate() + 28);
+            
+            // 4주 모드 범위 내에 있으면 9월 1일로 고정
+            if (coreIsAfterRef(currentDate) && currentDate < nextBlock) {
+                currentDate = new Date(base);
+            }
+            
+            console.log('현재 날짜:', currentDate.toISOString().split('T')[0]);
+            
+            // 기존 날짜 셀 제거 (요일 헤더 제외)
+            const calendarGrid = document.getElementById('calendarGrid');
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            // 버튼 텍스트 업데이트
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (coreIsAfterRef(currentDate)) {
+                // 4주 모드
+                showWeekView();
+                prevBtn.textContent = '이전4주';
+                nextBtn.textContent = '다음4주';
+            } else {
+                // 월별 모드
+                showMonthView();
+                prevBtn.textContent = '이전달';
+                nextBtn.textContent = '다음달';
+            }
+
+            // 달력 확장 상태 적용 (비동기로 처리)
+            setTimeout(toggleWeeksDisplay, 0);
+        }
+
+        function showWeekView() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.classList.remove('month-view');
+            document.getElementById('dateRange').style.backgroundColor = '#dcfce7';
+
+            const startDate = coreGet4WeekStart(currentDate);
+            const displayStartDate = coreGet4WeekDispStart(startDate);
+            const displayEndDate = coreGet4WeekDispEnd(displayStartDate);
+            
+            document.getElementById('dateRange').textContent = coreFormatRange(displayStartDate, displayEndDate);
+
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+
+                const cell = document.createElement('div');1
+                cell.className = 'calendar-day';
+                
+                // 1행,6행은 처음에는 disabled로 설정하지 않음 - toggleWeeksDisplay에서 처리
+                
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek === 6) cell.classList.add('saturday');
+                else if (dayOfWeek === 0) cell.classList.add('sunday');
+                
+                const today = new Date();
+                if (date.toDateString() === today.toDateString()) {
+                    cell.classList.add('today');
+                }
+                
+
+                
+                const dateNumber = document.createElement('div');
+                dateNumber.className = 'date-number';
+                
+                // 날짜 번호 추가
+                const dateText = document.createElement('span');
+                dateText.textContent = `${date.getMonth() + 1}/${date.getDate()}`;
+                dateNumber.appendChild(dateText);
+                
+                // 휴일 정보 추가 (날짜 옆)
+                const holidayInfo = getHolidayData(date);
+                if (holidayInfo) {
+                    const holidaySpan = document.createElement('span');
+                    holidaySpan.className = 'holiday-indicator';
+                    holidaySpan.textContent = holidayInfo;
+                    dateNumber.appendChild(holidaySpan);
+                }
+                
+                cell.appendChild(dateNumber);
+                
+
+                calendarGrid.appendChild(cell);
+            }
+        }
+
+        function showMonthView() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const showFullWeeks = document.getElementById('showFullWeeksCheckbox').checked;
+            calendarGrid.classList.add('month-view');
+            document.getElementById('dateRange').style.backgroundColor = '#eaf4ff';
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+            document.getElementById('dateRange').textContent = coreFormatMonthKor(currentDate);
+
+            let date = new Date(firstDay);
+            const firstDayOfWeek = ((date.getDay() + 6) % 7);
+            date.setDate(date.getDate() - firstDayOfWeek);
+
+            // 항상 6주(42개) 셀 생성 - 표시/숨김은 CSS로 처리
+            const totalDays = 42;
+            for (let i = 0; i < totalDays; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day';
+
+                if (date < firstDay || date > lastDay) {
+                    cell.classList.add('other-month');
+                    console.log(`셀 ${i}: ${date.getMonth() + 1}/${date.getDate()} - other-month 추가`);
+                }
+
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek === 6) cell.classList.add('saturday');
+                else if (dayOfWeek === 0) cell.classList.add('sunday');
+
+                const today = new Date();
+                if (date.toDateString() === today.toDateString()) {
+                    cell.classList.add('today');
+                }
+
+                const dateNumber = document.createElement('div');
+                dateNumber.className = 'date-number';
+                
+                // 날짜 번호 추가
+                const dateText = document.createElement('span');
+                dateText.textContent = `${date.getMonth() + 1}/${date.getDate()}`;
+                dateNumber.appendChild(dateText);
+                
+                // 휴일 정보 추가 (날짜 옆)
+                const holidayInfo = getHolidayData(date);
+                if (holidayInfo) {
+                    const holidaySpan = document.createElement('span');
+                    holidaySpan.className = 'holiday-indicator';
+                    holidaySpan.textContent = holidayInfo;
+                    dateNumber.appendChild(holidaySpan);
+                }
+                
+                cell.appendChild(dateNumber);
+
+
+
+                calendarGrid.appendChild(cell);
+                date.setDate(date.getDate() + 1);
+            }
+        }
+
+
+
+
+
+        // ===== 공휴일 데이터 관리 =====
+        // YYYYMMDD 형식으로 공휴일 데이터 관리
+        // 예: '20240606': '현충일' → 2024년 6월 6일은 현충일
+        const holidayData = {
+            '20240606': '현충일',
+            '20240603': '대통령 선거일'
+        };
+
+        /**
+         * 특정 날짜의 공휴일 정보를 반환하는 함수
+         * @param {Date} date - 확인할 날짜
+         * @returns {string|null} 공휴일명 또는 null
+         */
+        function getHolidayData(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateKey = `${year}${month}${day}`;
+            
+            return holidayData[dateKey] || null;
+        }
+
+        /**
+         * 셀에서 날짜 정보를 추출하는 함수
+         * @param {HTMLElement} cell - 달력 셀 요소
+         * @returns {Date|null} 파싱된 날짜 또는 null
+         * 
+         * 셀 내부의 "월/일" 형식 텍스트를 Date 객체로 변환
+         * 예: "8/15" → 2025년 8월 15일
+         */
+        function getDateFromCell(cell) {
+            const dateNumberDiv = cell.querySelector('.date-number');
+            if (dateNumberDiv) {
+                const dateText = dateNumberDiv.querySelector('span');
+                if (dateText) {
+                    const [m, d] = dateText.textContent.split('/');
+                    const y = currentDate.getFullYear();
+                    const date = new Date(y, parseInt(m, 10) - 1, parseInt(d, 10));
+                    console.log(`셀 날짜 파싱: ${dateText.textContent} -> ${date.toDateString()}`);
+                    return date;
+                }
+            }
+            return null;
+        }
+
+
+
+        /**
+         * 달력 확장 기능 토글 함수
+         * 
+         * 달력확장 체크박스 상태에 따라 이전/다음 달 날짜 표시 여부를 제어
+         * 
+         * 4주 모드:
+         * - 체크 시: 1행, 6행 표시 + 음영 처리
+         * - 해제 시: 1행, 6행 완전 숨김
+         * 
+         * 월별 모드:
+         * - 체크 시: 모든 행 표시 + other-month 셀 음영 처리
+         * - 해제 시: 현재 월이 없는 행 숨김 + 현재 월이 있는 행의 other-month 셀 음영 처리
+         */
+        function toggleWeeksDisplay() {
+            const showFullWeeks = document.getElementById('showFullWeeksCheckbox').checked;
+            const calendarGrid = document.getElementById('calendarGrid');
+            const cells = calendarGrid.querySelectorAll('.calendar-day');
+            
+            console.log('toggleWeeksDisplay 호출 - 달력확장:', showFullWeeks);
+            console.log('찾은 셀 개수:', cells.length);
+            
+            if (coreIsAfterRef(currentDate)) {
+                // ===== 4주 달력 모드 =====
+                console.log('4주 달력 모드 - 1행, 6행 완전 제거');
+                
+                // 1행 (0-6 인덱스) - 첫 주
+                for (let i = 0; i < 7; i++) {
+                    if (cells[i]) {
+                        if (showFullWeeks) {
+                            cells[i].classList.remove('completely-hidden');
+                            cells[i].classList.add('week-extension'); // 달력확장 전용 음영
+                        } else {
+                            cells[i].classList.add('completely-hidden');
+                            cells[i].classList.remove('week-extension');
+                        }
+                    }
+                }
+                
+                // 6행 (35-41 인덱스) - 마지막 주
+                for (let i = 35; i < 42; i++) {
+                    if (cells[i]) {
+                        if (showFullWeeks) {
+                            cells[i].classList.remove('completely-hidden');
+                            cells[i].classList.add('week-extension'); // 달력확장 전용 음영
+                        } else {
+                            cells[i].classList.add('completely-hidden');
+                            cells[i].classList.remove('week-extension');
+                        }
+                    }
+                }
+            } else {
+                // ===== 월별 달력 모드 =====
+                console.log('월별 달력 모드 - 현재 달 없는 행만 토글');
+                
+                if (showFullWeeks) {
+                    // 달력확장 체크 시: 모든 행 표시하고 다른 달 영역에 음영 처리
+                    console.log('달력확장 활성화 - 모든 other-month 셀에 음영 처리');
+                    let otherMonthCount = 0;
+                    cells.forEach((cell, index) => {
+                        cell.classList.remove('force-hidden');
+                        cell.classList.remove('completely-hidden');
+                        const isOtherMonth = cell.classList.contains('other-month');
+                        const dateText = cell.querySelector('.date-number span')?.textContent || 'N/A';
+                        console.log(`셀 ${index}: ${dateText}, other-month = ${isOtherMonth}`);
+                        if (isOtherMonth) {
+                            otherMonthCount++;
+                            cell.classList.add('week-extension');
+                            console.log(`셀 ${index} (${dateText})에 week-extension 추가`);
+                        } else {
+                            cell.classList.remove('week-extension');
+                        }
+                    });
+                    console.log(`총 ${otherMonthCount}개의 other-month 셀 발견`);
+                } else {
+                    // 달력확장 해제 시: 이번 달이 아닌 셀들에 음영 처리하고, 해당 월이 없는 행은 숨김
+                    const currentMonth = currentDate.getMonth();
+                    const currentYear = currentDate.getFullYear();
+                    
+                    // 모든 셀에서 week-extension 클래스 제거
+                    cells.forEach(cell => {
+                        cell.classList.remove('week-extension');
+                    });
+                    
+                    // 각 행별로 체크
+                    for (let row = 0; row < 6; row++) {
+                        let hasCurrentMonth = false;
+                        
+                        // 해당 행에 현재 월 날짜가 있는지 확인
+                        for (let col = 0; col < 7; col++) {
+                            const cellIndex = row * 7 + col;
+                            if (cells[cellIndex]) {
+                                const cellDate = getDateFromCell(cells[cellIndex]);
+                                if (cellDate && cellDate.getMonth() === currentMonth && cellDate.getFullYear() === currentYear) {
+                                    hasCurrentMonth = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        console.log(`행 ${row}: 현재 월 포함 여부 = ${hasCurrentMonth}`);
+                        
+                        if (hasCurrentMonth) {
+                            // 현재 월이 있는 행: 다른 달 셀들에 음영 처리
+                            for (let col = 0; col < 7; col++) {
+                                const cellIndex = row * 7 + col;
+                                if (cells[cellIndex]) {
+                                    cells[cellIndex].classList.remove('force-hidden');
+                                    cells[cellIndex].classList.remove('completely-hidden');
+                                    if (cells[cellIndex].classList.contains('other-month')) {
+                                        cells[cellIndex].classList.add('week-extension');
+                                    }
+                                }
+                            }
+                        } else {
+                            // 현재 월이 없는 행: 완전히 숨김
+                            console.log(`행 ${row} 숨김 처리`);
+                            for (let col = 0; col < 7; col++) {
+                                const cellIndex = row * 7 + col;
+                                if (cells[cellIndex]) {
+                                    cells[cellIndex].classList.add('completely-hidden');
+                                    cells[cellIndex].classList.remove('week-extension'); // 확실히 음영 제거
+                                    cells[cellIndex].classList.remove('force-hidden'); // 기존 클래스 제거
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+        // ===== 이벤트 리스너 등록 =====
+        
+        // 이전 버튼 클릭 이벤트
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentDate = coreMovePrev(currentDate);
+            updateCalendar();
+        });
+
+        // 다음 버튼 클릭 이벤트
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentDate = coreMoveNext(currentDate);
+            updateCalendar();
+        });
+
+        // 오늘 버튼 클릭 이벤트
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            currentDate = new Date();
+            updateCalendar();
+        });
+
+        // 기준일자 버튼 클릭 이벤트 (숨김 처리됨)
+        document.getElementById('referenceBtn').addEventListener('click', () => {
+            currentDate = new Date(coreREF_DATE);
+            updateCalendar();
+        });
+
+        // 달력확장 체크박스 변경 이벤트
+        document.getElementById('showFullWeeksCheckbox').addEventListener('change', function() {
+            console.log('체크박스 클릭됨! 현재 상태:', this.checked);
+            toggleWeeksDisplay();
+        });
+
+        // ===== 달력 초기화 =====
+        initializeCalendar();
+    </script>
+</body>
+</html> 
