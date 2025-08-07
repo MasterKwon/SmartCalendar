@@ -199,6 +199,12 @@
             font-weight: 500;
         }
         
+        /* 공휴일 날짜 텍스트 빨간색 표시 */
+        .calendar-day.holiday .date-number {
+            color: #dc2626 !important;
+            font-weight: 600;
+        }
+        
 
         
         /* 월 뷰 스타일 */
@@ -252,7 +258,7 @@
 <body>
     <div class="calendar-container">
         <div class="calendar-header">
-            <div class="calendar-title">월별계획</div>
+            <div class="calendar-title">Smart Calendar</div>
             <div class="date-range" id="dateRange"></div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -570,6 +576,9 @@
                     holidaySpan.className = 'holiday-indicator';
                     holidaySpan.textContent = holidayInfo;
                     dateNumber.appendChild(holidaySpan);
+                    
+                    // 공휴일 날짜 텍스트 빨간색 표시
+                    cell.classList.add('holiday');
                 }
                 
                 cell.appendChild(dateNumber);
@@ -629,6 +638,9 @@
                     holidaySpan.className = 'holiday-indicator';
                     holidaySpan.textContent = holidayInfo;
                     dateNumber.appendChild(holidaySpan);
+                    
+                    // 공휴일 날짜 텍스트 빨간색 표시
+                    cell.classList.add('holiday');
                 }
                 
                 cell.appendChild(dateNumber);
@@ -648,8 +660,64 @@
         // YYYYMMDD 형식으로 공휴일 데이터 관리
         // 예: '20240606': '현충일' → 2024년 6월 6일은 현충일
         const holidayData = {
+            // 2024년 공휴일
+            '20240101': '신정',
+            '20240209': '설날',
+            '20240210': '설날',
+            '20240211': '설날',
+            '20240212': '설날 대체공휴일',
+            '20240301': '삼일절',
+            '20240410': '국회의원 선거일',
+            '20240505': '어린이날',
+            '20240506': '어린이날 대체공휴일',
+            '20240515': '부처님 오신 날',
             '20240606': '현충일',
-            '20240603': '대통령 선거일'
+            '20240815': '광복절',
+            '20240916': '추석',
+            '20240917': '추석',
+            '20240918': '추석',
+            '20241003': '개천절',
+            '20241009': '한글날',
+            '20241225': '크리스마스',
+
+            // 2025년 공휴일
+            '20250101': '신정',
+            '20250128': '설날',
+            '20250129': '설날',
+            '20250130': '설날',
+            '20250301': '삼일절',
+            '20250303': '삼일절 대체공휴일',
+            '20250505': '어린이날',
+            '20250506': '부처님 오신 날 대체공휴일',
+            '20250606': '현충일',
+            '20250815': '광복절',
+            '20251003': '개천절',
+            '20251005': '추석',
+            '20251006': '추석',
+            '20251007': '추석',
+            '20251008': '추석 대체공휴일',
+            '20251009': '한글날',
+            '20251225': '크리스마스',
+
+            // 2026년 공휴일
+            '20260101': '신정',
+            '20260216': '설날',
+            '20260217': '설날',
+            '20260218': '설날',
+            '20260301': '삼일절',
+            '20260302': '삼일절 대체공휴일',
+            '20260505': '어린이날',
+            '20260525': '부처님 오신 날',
+            '20260606': '현충일',
+            '20260815': '광복절',
+            '20260925': '추석',
+            '20260926': '추석',
+            '20260927': '추석',
+            '20260928': '추석 대체공휴일',
+            '20261003': '개천절',
+            '20261005': '개천절 대체공휴일',
+            '20261009': '한글날',
+            '20261225': '크리스마스'
         };
 
         /**
